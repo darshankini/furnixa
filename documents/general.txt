@@ -1,0 +1,29 @@
+I want to build furniture cms. 
+process will be 
+
+Add Client
+Client -> Id, Firstname , Lastname , Mobile , Email , Alternate Mobile No., Address
+
+Lead -> Id, Client Id,Project Name, Assign By, Assign To, Status, Created At, Last Updated At, Last updated By
+
+
+Status of Leads
+
+enquiry -> 
+quotation -> 
+optimisation -> 
+purchase -> 
+production -> 
+dispatch -> 
+invoice ->
+
+Each phase can have its owne documents related to project name
+path will be projectname/statusoflead/filename.extension
+
+Client -> Add/Update form and list
+lead -> add/update form and list
+
+Lead -> update my multiple user 
+lead form have chat option as well to discuss related to the project
+
+which stack will be best to build this application frontend ,backend and its database.
