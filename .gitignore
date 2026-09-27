@@ -111,4 +111,5 @@ frontend/build/
 # ==========================================
 # Misc
 # ==========================================
-.DS_Store
+.DS_Store.prisma-composer/
+.alchemy/
