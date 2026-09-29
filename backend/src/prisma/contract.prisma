@@ -1,0 +1,223 @@
+// use prisma-8
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  SALES
+  DESIGNER
+  PURCHASE
+  PRODUCTION
+  ACCOUNTS
+  DISPATCH
+  USER
+}
+
+enum LeadStatus {
+  ENQUIRY
+  QUOTATION
+  OPTIMISATION
+  PURCHASE
+  PRODUCTION
+  DISPATCH
+  INVOICE
+}
+
+enum AssignmentRole {
+  PRIMARY
+  COLLABORATOR
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  passwordHash String
+  mobile       String?
+  role         UserRole @default(USER)
+  isActive     Boolean  @default(true)
+
+  createdLeads  Lead[] @relation("LeadCreatedBy")
+  assignedLeads Lead[] @relation("LeadAssignedBy")
+  updatedLeads  Lead[] @relation("LeadUpdatedBy")
+
+  assignments   LeadUser[]
+  documents     Document[]
+  messages      ChatMessage[]
+  statusHistory LeadStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([email])
+  @@index([role])
+}
+
+model Client {
+  id              Int     @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  mobile          String
+  email           String?
+  alternateMobile String?
+  address         String? 
+
+  leads Lead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([mobile])
+  @@index([email])
+}
+
+model Lead {
+  id          Int        @id @default(autoincrement())
+  clientId    Int
+  projectName String
+  status      LeadStatus @default(ENQUIRY)
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  assignedById Int?
+  assignedBy   User? @relation(
+    "LeadAssignedBy",
+    fields: [assignedById],
+    references: [id]
+  )
+
+  createdById Int?
+  createdBy   User? @relation(
+    "LeadCreatedBy",
+    fields: [createdById],
+    references: [id]
+  )
+
+  lastUpdatedById Int?
+  lastUpdatedBy   User? @relation(
+    "LeadUpdatedBy",
+    fields: [lastUpdatedById],
+    references: [id]
+  )
+
+  assignments   LeadUser[]
+  documents    Document[]
+  messages     ChatMessage[]
+  statusHistory LeadStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([clientId])
+  @@index([status])
+  @@index([assignedById])
+  @@index([lastUpdatedById])
+  @@index([createdAt])
+}
+
+model LeadUser {
+  id     Int            @id @default(autoincrement())
+  leadId Int
+  userId Int
+  role   AssignmentRole @default(COLLABORATOR)
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  assignedAt DateTime @default(now())
+
+  @@unique([leadId, userId])
+  @@index([leadId])
+  @@index([userId])
+}
+
+model LeadStatusHistory {
+  id         Int        @id @default(autoincrement())
+  leadId     Int
+  fromStatus LeadStatus?
+  toStatus   LeadStatus
+  changedById Int
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  changedBy User @relation(
+    fields: [changedById],
+    references: [id]
+  )
+
+  changedAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([changedById])
+  @@index([changedAt])
+}
+
+model Document {
+  id           Int        @id @default(autoincrement())
+  leadId       Int
+  status       LeadStatus
+
+  originalName String
+  fileName     String
+  filePath     String
+  extension    String?
+  mimeType     String?
+  fileSize     BigInt?
+
+  uploadedById Int
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  uploadedBy User @relation(
+    fields: [uploadedById],
+    references: [id]
+  )
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([status])
+  @@index([uploadedById])
+}
+
+model ChatMessage {
+  id     Int    @id @default(autoincrement())
+  leadId Int
+  userId Int
+  message String
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  user User @relation(
+    fields: [userId],
+    references: [id]
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([userId])
+  @@index([createdAt])
+}

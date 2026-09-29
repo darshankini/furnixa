@@ -1,0 +1,182 @@
+/* ---------- App shell: sidebar + content ---------- */
+.app-shell {
+  --sidebar-width: 264px;
+  --sidebar-bg: #1f1a17;
+  --sidebar-text: #d6cfc8;
+  --sidebar-muted: #8a8079;
+  --sidebar-hover: #2c2521;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sidebar-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.sidebar-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.sidebar-brand-text strong { color: #fff; font-size: 1.05rem; }
+.sidebar-brand-text span { color: var(--sidebar-muted); font-size: 0.85rem; }
+.sidebar-close {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: 0;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+.sidebar-close:hover { background: var(--sidebar-hover); }
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #4a403a transparent;
+}
+.nav-section {
+  margin: 18px 10px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sidebar-muted);
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-link.active {
+  background: rgba(194, 84, 12, 0.22);
+  color: #f59e42;
+  font-weight: 600;
+}
+.nav-link:focus-visible { outline: 2px solid #f59e42; outline-offset: 2px; }
+
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px 20px 18px;
+}
+.sidebar-user { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.sidebar-user-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.sidebar-user-text strong { color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-text span { color: var(--sidebar-muted); font-size: 0.85rem; }
+.sign-out {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  color: var(--sidebar-text);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 6px;
+}
+.sign-out:hover { color: #fff; }
+
+.app-main { margin-left: var(--sidebar-width); min-height: 100vh; }
+.app-content { padding: 32px 40px 48px; max-width: 1400px; }
+
+.mobile-topbar { display: none; }
+.sidebar-backdrop { display: none; }
+
+/* ---------- Tablets and phones: sidebar becomes a slide-in drawer ---------- */
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.3);
+  }
+  .sidebar-close { display: inline-flex; }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 15, 12, 0.45);
+    z-index: 30;
+  }
+
+  .app-main { margin-left: 0; }
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .menu-button {
+    display: inline-flex;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .mobile-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--primary); }
+
+  .app-content { padding: 24px 20px 40px; }
+}
+
+@media (max-width: 480px) {
+  .app-content { padding: 20px 16px 32px; }
+}

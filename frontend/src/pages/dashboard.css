@@ -1,0 +1,113 @@
+.dashboard { display: flex; flex-direction: column; gap: 28px; }
+
+/* ---------- Stat cards ---------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px 28px;
+  min-width: 0;
+}
+.stat-card.highlight { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.stat-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stat-card.highlight .stat-label { color: #fde2c4; }
+.stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #f3efea;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.stat-card.highlight .stat-icon { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.stat-value { font-size: 2.6rem; font-weight: 800; line-height: 1; margin: 4px 0 14px; }
+.stat-caption { font-size: 0.92rem; color: var(--muted); }
+.stat-card.highlight .stat-caption { color: #fde2c4; }
+
+/* ---------- Panels ---------- */
+.dash-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+}
+/* .panel, .panel-title, .table-wrap and .data-table live in styles/ui.css */
+
+/* Pipeline bars */
+.pipeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.pipeline-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+.pipeline-label { color: var(--muted); }
+.pipeline-track { height: 8px; background: #efebe6; border-radius: 99px; overflow: hidden; }
+.pipeline-bar { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s ease; }
+.pipeline-count { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Total active leads (dark card) */
+.panel-dark {
+  background: #1f1a17;
+  border-color: #1f1a17;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.panel-dark .panel-title { color: #d6cfc8; letter-spacing: 0.12em; font-size: 0.85rem; }
+.total-value { font-size: 4rem; font-weight: 800; line-height: 1; margin-top: auto; }
+.total-caption { margin: 10px 0 28px; color: #d6cfc8; font-size: 1.05rem; }
+.phase-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.phase-chip {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Recent leads table */
+.lead-id { color: var(--muted); font-variant-numeric: tabular-nums; }
+.lead-project { font-weight: 600; }
+.lead-updated { color: var(--muted); }
+.phase-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1200px) {
+  .stats-grid { gap: 16px; }
+  .stat-card { padding: 22px; }
+}
+
+@media (max-width: 1100px) {
+  .dash-row { grid-template-columns: 1fr; }
+  .total-value { margin-top: 8px; }
+}
+
+@media (max-width: 760px) {
+  .dashboard { gap: 20px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-value { font-size: 2.2rem; margin-bottom: 10px; }
+  .pipeline-row { grid-template-columns: 96px minmax(0, 1fr) 24px; gap: 12px; font-size: 0.9rem; }
+}
