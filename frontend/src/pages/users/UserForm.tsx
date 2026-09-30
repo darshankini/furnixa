@@ -96,7 +96,7 @@ export function UserForm({ mode, initialValues, isSelf = false, cancelTo, onSubm
     errors[key] ? <p id={`${key}-error`} className="field-error">{errors[key]}</p> : null
 
   return (
-    <form className="panel form-panel" onSubmit={handleSubmit} noValidate>
+    <form className="panel w-full" onSubmit={handleSubmit} noValidate>
       {formError && <div className="alert alert-error" role="alert">{formError}</div>}
 
       <div className="form-grid">

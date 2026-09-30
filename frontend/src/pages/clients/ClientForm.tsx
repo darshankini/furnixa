@@ -26,6 +26,7 @@ function validate(v: ClientFormValues): FieldErrors {
   else if (!PHONE.test(v.mobile.trim())) e.mobile = `Mobile ${PHONE_MESSAGE}`
   if (v.alternateMobile.trim() && !PHONE.test(v.alternateMobile.trim())) {
     e.alternateMobile = `Alternate mobile ${PHONE_MESSAGE}`
+    if(v.mobile.trim() == v.alternateMobile.trim()) e.alternateMobile = `Alternate mobile number cannot be the same`
   }
   if (v.email.trim() && !/^\S+@\S+\.\S+$/.test(v.email.trim())) e.email = 'Please enter a valid email address.'
   if (v.address.trim().length > 500) e.address = 'Address must be 500 characters or fewer.'
@@ -78,7 +79,7 @@ export function ClientForm({ mode, initialValues, cancelTo, onSubmit }: Props) {
     errors[key] ? <p id={`${key}-error`} className="field-error">{errors[key]}</p> : null
 
   return (
-    <form className="panel form-panel" onSubmit={handleSubmit} noValidate>
+    <form className="panel w-full" onSubmit={handleSubmit} noValidate>
       {formError && <div className="alert alert-error" role="alert">{formError}</div>}
 
       <div className="form-grid">
@@ -96,8 +97,6 @@ export function ClientForm({ mode, initialValues, cancelTo, onSubmit }: Props) {
           {fieldError('lastName')}
         </div>
 
-        <h2 className="form-section-title">Contact</h2>
-
         <div className="form-field">
           <label htmlFor="mobile">Mobile<span className="required">*</span></label>
           <input {...fieldProps('mobile')} type="tel" inputMode="tel" placeholder="e.g. +919876543210" />
@@ -110,7 +109,7 @@ export function ClientForm({ mode, initialValues, cancelTo, onSubmit }: Props) {
           {fieldError('alternateMobile')}
         </div>
 
-        <div className="form-field span-2">
+        <div className="form-field">
           <label htmlFor="email">Email</label>
           <input {...fieldProps('email')} type="email" autoComplete="off" placeholder="Optional" />
           {fieldError('email')}
