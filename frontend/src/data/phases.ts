@@ -8,6 +8,8 @@ import {
   Truck,
   type LucideIcon,
 } from 'lucide-react'
+import type { UserRole } from '../api/auth'
+import type { Department } from '../api/leads'
 
 /** Matches the LeadStatus enum in backend/src/prisma/contract.prisma */
 export type LeadStatus =
@@ -40,3 +42,24 @@ export const PHASES: Phase[] = [
 ]
 
 export const PHASE_BY_STATUS = Object.fromEntries(PHASES.map((p) => [p.status, p])) as Record<LeadStatus, Phase>
+
+/** Upload folders, matching the Department enum in contract.prisma */
+export const DEPARTMENTS: { value: Department; label: string }[] = [
+  { value: 'SALES', label: 'Sales' },
+  { value: 'DESIGN', label: 'Design' },
+  { value: 'PURCHASE', label: 'Purchase' },
+  { value: 'PRODUCTION', label: 'Production' },
+  { value: 'ACCOUNTS', label: 'Accounts' },
+  { value: 'DISPATCH', label: 'Dispatch' },
+  { value: 'ADMIN', label: 'Admin' },
+]
+
+/** The folder each role uploads into (admins and managers choose) */
+export const DEPARTMENT_BY_ROLE: Partial<Record<UserRole, Department>> = {
+  SALES: 'SALES',
+  DESIGNER: 'DESIGN',
+  PURCHASE: 'PURCHASE',
+  PRODUCTION: 'PRODUCTION',
+  ACCOUNTS: 'ACCOUNTS',
+  DISPATCH: 'DISPATCH',
+}

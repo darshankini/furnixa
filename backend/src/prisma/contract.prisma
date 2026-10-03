@@ -27,6 +27,17 @@ enum AssignmentRole {
   COLLABORATOR
 }
 
+/// Folder a lead document is stored in: each department uploads into its own folder
+enum Department {
+  ADMIN
+  SALES
+  DESIGN
+  PURCHASE
+  PRODUCTION
+  ACCOUNTS
+  DISPATCH
+}
+
 model User {
   id           Int      @id @default(autoincrement())
   firstName    String
@@ -37,14 +48,19 @@ model User {
   role         UserRole @default(USER)
   isActive     Boolean  @default(true)
 
-  createdLeads  Lead[] @relation("LeadCreatedBy")
-  assignedLeads Lead[] @relation("LeadAssignedBy")
-  updatedLeads  Lead[] @relation("LeadUpdatedBy")
+  createdLeads    Lead[] @relation("LeadCreatedBy")
+  assignedLeads   Lead[] @relation("LeadAssignedBy")
+  updatedLeads    Lead[] @relation("LeadUpdatedBy")
+  chatClosedLeads Lead[] @relation("LeadChatClosedBy")
 
-  assignments   LeadUser[]
-  documents     Document[]
-  messages      ChatMessage[]
-  statusHistory LeadStatusHistory[]
+  assignments     LeadUser[] @relation("LeadUserAssignee")
+  assignmentsMade LeadUser[] @relation("LeadUserAssignedBy")
+  documents       Document[]
+  messages        ChatMessage[]
+
+  statusChanges     LeadStatusHistory[] @relation("HistoryChangedBy")
+  historyAssignedBy LeadStatusHistory[] @relation("HistoryAssignedBy")
+  historyAssignedTo LeadStatusHistory[] @relation("HistoryAssignedTo")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -100,9 +116,19 @@ model Lead {
     references: [id]
   )
 
+  // Only an admin can close (or reopen) the lead chat; closed chats stay readable
+  chatClosed     Boolean   @default(false)
+  chatClosedAt   DateTime?
+  chatClosedById Int?
+  chatClosedBy   User? @relation(
+    "LeadChatClosedBy",
+    fields: [chatClosedById],
+    references: [id]
+  )
+
   assignments   LeadUser[]
-  documents    Document[]
-  messages     ChatMessage[]
+  documents     Document[]
+  messages      ChatMessage[]
   statusHistory LeadStatusHistory[]
 
   createdAt DateTime @default(now())
@@ -128,12 +154,22 @@ model LeadUser {
   )
 
   user User @relation(
+    "LeadUserAssignee",
     fields: [userId],
     references: [id],
     onDelete: Cascade
   )
 
-  assignedAt DateTime @default(now())
+  assignedById Int?
+  assignedBy   User? @relation(
+    "LeadUserAssignedBy",
+    fields: [assignedById],
+    references: [id]
+  )
+
+  assignedAt   DateTime  @default(now())
+  // null = currently assigned; set when the user is taken off the lead (they keep chat access)
+  unassignedAt DateTime?
 
   @@unique([leadId, userId])
   @@index([leadId])
@@ -154,14 +190,34 @@ model LeadStatusHistory {
   )
 
   changedBy User @relation(
+    "HistoryChangedBy",
     fields: [changedById],
     references: [id]
   )
+
+  // Set when this entry assigns the lead to someone (one entry per assignee, e.g. several designers)
+  assignedById Int?
+  assignedBy   User? @relation(
+    "HistoryAssignedBy",
+    fields: [assignedById],
+    references: [id]
+  )
+
+  assignedToId Int?
+  assignedTo   User? @relation(
+    "HistoryAssignedTo",
+    fields: [assignedToId],
+    references: [id]
+  )
+
+  note String?
 
   changedAt DateTime @default(now())
 
   @@index([leadId])
   @@index([changedById])
+  @@index([assignedById])
+  @@index([assignedToId])
   @@index([changedAt])
 }
 
@@ -169,6 +225,7 @@ model Document {
   id           Int        @id @default(autoincrement())
   leadId       Int
   status       LeadStatus
+  department   Department
 
   originalName String
   fileName     String
@@ -194,6 +251,7 @@ model Document {
 
   @@index([leadId])
   @@index([status])
+  @@index([department])
   @@index([uploadedById])
 }
 

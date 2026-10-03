@@ -1,11 +1,11 @@
-import { ArrowLeft, Mail, MapPin, Pencil, Phone, Trash2 } from 'lucide-react'
+import { ArrowLeft, Mail, MapPin, Pencil, Phone, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { clientsApi, type ClientRecord } from '../../api/clients'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { useAuth } from '../../context/auth-context'
-import { CLIENT_DELETE_ROLES, CLIENT_MANAGE_ROLES } from '../../data/roles'
+import { CLIENT_DELETE_ROLES, CLIENT_MANAGE_ROLES, LEAD_CREATE_ROLES } from '../../data/roles'
 import { formatDateTime, initialsOf } from '../../utils/format'
 
 export function ClientDetailPage() {
@@ -32,6 +32,7 @@ function ClientDetail({ id }: { id: number }) {
 
   const canManage = !!me && CLIENT_MANAGE_ROLES.includes(me.role)
   const canDelete = !!me && CLIENT_DELETE_ROLES.includes(me.role)
+  const canCreateLead = !!me && LEAD_CREATE_ROLES.includes(me.role)
 
   const [client, setClient] = useState<ClientRecord | null>(null)
   const [error, setError] = useState(Number.isInteger(id) && id > 0 ? '' : 'Client not found.')
@@ -92,8 +93,14 @@ function ClientDetail({ id }: { id: number }) {
                 </span>
               </div>
             </div>
-            {(canManage || canDelete) && (
+            {(canManage || canDelete || canCreateLead) && (
               <div className="profile-actions">
+                {canCreateLead && (
+                  <Link to={`/leads/new?clientId=${client.id}`} className="btn btn-accent">
+                    <Plus size={16} aria-hidden="true" />
+                    New lead
+                  </Link>
+                )}
                 {canManage && (
                   <Link to={`/clients/${client.id}/edit`} className="btn btn-outline">
                     <Pencil size={16} aria-hidden="true" />

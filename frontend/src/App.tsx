@@ -1,15 +1,25 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/layout/AppLayout'
 import { GuestRoute, ProtectedRoute, RequireRole } from './components/RouteGuards'
-import { CLIENT_MANAGE_ROLES, USER_CREATE_ROLES, USER_EDIT_ROLES, USER_VIEW_ROLES } from './data/roles'
+import {
+  CLIENT_MANAGE_ROLES,
+  LEAD_CREATE_ROLES,
+  LEAD_MANAGE_ROLES,
+  USER_CREATE_ROLES,
+  USER_EDIT_ROLES,
+  USER_VIEW_ROLES,
+} from './data/roles'
 import { ClientCreatePage } from './pages/clients/ClientCreatePage'
 import { ClientDetailPage } from './pages/clients/ClientDetailPage'
 import { ClientEditPage } from './pages/clients/ClientEditPage'
 import { ClientsListPage } from './pages/clients/ClientsListPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
+import { LeadCreatePage } from './pages/leads/LeadCreatePage'
+import { LeadDetailPage } from './pages/leads/LeadDetailPage'
+import { LeadEditPage } from './pages/leads/LeadEditPage'
+import { LeadsListPage } from './pages/leads/LeadsListPage'
 import { LoginPage } from './pages/LoginPage'
-import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { UserCreatePage } from './pages/users/UserCreatePage'
 import { UserDetailPage } from './pages/users/UserDetailPage'
@@ -30,8 +40,17 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/leads" element={<PlaceholderPage title="All Leads" />} />
-          <Route path="/phases/:phase" element={<PlaceholderPage />} />
+
+          {/* Everyone signed in can open leads; the backend only returns the ones they may see */}
+          <Route path="/leads" element={<LeadsListPage />} />
+          <Route path="/phases/:phase" element={<LeadsListPage />} />
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
+          <Route element={<RequireRole roles={LEAD_CREATE_ROLES} />}>
+            <Route path="/leads/new" element={<LeadCreatePage />} />
+          </Route>
+          <Route element={<RequireRole roles={LEAD_MANAGE_ROLES} />}>
+            <Route path="/leads/:id/edit" element={<LeadEditPage />} />
+          </Route>
 
           {/* Everyone signed in can view clients */}
           <Route path="/clients" element={<ClientsListPage />} />

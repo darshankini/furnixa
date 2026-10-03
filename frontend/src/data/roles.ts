@@ -30,3 +30,12 @@ export const USER_EDIT_ROLES: UserRole[] = ['ADMIN']
 /** Everyone signed in can view clients; these roles can add/edit, and a smaller set can delete */
 export const CLIENT_MANAGE_ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'SALES']
 export const CLIENT_DELETE_ROLES: UserRole[] = ['ADMIN', 'MANAGER']
+
+/** Same rules as backend/src/leads/leads.types.ts */
+export const LEAD_CREATE_ROLES: UserRole[] = ['ADMIN', 'SALES']
+/** Edit, move to another phase, and assign to users */
+export const LEAD_MANAGE_ROLES: UserRole[] = ['ADMIN', 'SALES']
+export const LEAD_DELETE_ROLES: UserRole[] = ['ADMIN']
+export const LEAD_CHAT_CLOSE_ROLES: UserRole[] = ['ADMIN']
+/** These roles pick a folder when uploading; everyone else uploads into their own department */
+export const PICK_DEPARTMENT_ROLES: UserRole[] = ['ADMIN', 'MANAGER']

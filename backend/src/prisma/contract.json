@@ -50,6 +50,39 @@
               }
             ]
           },
+          "Department": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ADMIN",
+                "value": "ADMIN"
+              },
+              {
+                "name": "SALES",
+                "value": "SALES"
+              },
+              {
+                "name": "DESIGN",
+                "value": "DESIGN"
+              },
+              {
+                "name": "PURCHASE",
+                "value": "PURCHASE"
+              },
+              {
+                "name": "PRODUCTION",
+                "value": "PRODUCTION"
+              },
+              {
+                "name": "ACCOUNTS",
+                "value": "ACCOUNTS"
+              },
+              {
+                "name": "DISPATCH",
+                "value": "DISPATCH"
+              }
+            ]
+          },
           "LeadStatus": {
             "codecId": "pg/text@1",
             "members": [
@@ -356,6 +389,19 @@
                   "kind": "scalar"
                 }
               },
+              "department": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "Department",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "extension": {
                 "nullable": true,
                 "type": {
@@ -472,6 +518,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "department": {
+                  "column": "department"
+                },
                 "extension": {
                   "column": "extension"
                 },
@@ -510,6 +559,27 @@
           "Lead": {
             "fields": {
               "assignedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "chatClosed": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "chatClosedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "chatClosedById": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -608,6 +678,22 @@
                 },
                 "to": {
                   "model": "LeadUser",
+                  "namespace": "public"
+                }
+              },
+              "chatClosedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "chatClosedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
                   "namespace": "public"
                 }
               },
@@ -710,6 +796,15 @@
                 "assignedById": {
                   "column": "assignedById"
                 },
+                "chatClosed": {
+                  "column": "chatClosed"
+                },
+                "chatClosedAt": {
+                  "column": "chatClosedAt"
+                },
+                "chatClosedById": {
+                  "column": "chatClosedById"
+                },
                 "clientId": {
                   "column": "clientId"
                 },
@@ -741,6 +836,20 @@
           },
           "LeadStatusHistory": {
             "fields": {
+              "assignedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "assignedToId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "changedAt": {
                 "nullable": false,
                 "type": {
@@ -782,6 +891,13 @@
                   "kind": "scalar"
                 }
               },
+              "note": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "toStatus": {
                 "nullable": false,
                 "type": {
@@ -797,6 +913,38 @@
               }
             },
             "relations": {
+              "assignedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "assignedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "assignedTo": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "assignedToId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
               "changedBy": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -832,6 +980,12 @@
             },
             "storage": {
               "fields": {
+                "assignedById": {
+                  "column": "assignedById"
+                },
+                "assignedToId": {
+                  "column": "assignedToId"
+                },
                 "changedAt": {
                   "column": "changedAt"
                 },
@@ -847,6 +1001,9 @@
                 "leadId": {
                   "column": "leadId"
                 },
+                "note": {
+                  "column": "note"
+                },
                 "toStatus": {
                   "column": "toStatus"
                 }
@@ -861,6 +1018,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "assignedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -891,6 +1055,13 @@
                   "plane": "domain"
                 }
               },
+              "unassignedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
               "userId": {
                 "nullable": false,
                 "type": {
@@ -900,6 +1071,22 @@
               }
             },
             "relations": {
+              "assignedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "assignedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
               "lead": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -938,6 +1125,9 @@
                 "assignedAt": {
                   "column": "assignedAt"
                 },
+                "assignedById": {
+                  "column": "assignedById"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -946,6 +1136,9 @@
                 },
                 "role": {
                   "column": "role"
+                },
+                "unassignedAt": {
+                  "column": "unassignedAt"
                 },
                 "userId": {
                   "column": "userId"
@@ -1065,6 +1258,36 @@
                   "namespace": "public"
                 }
               },
+              "assignmentsMade": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "assignedById"
+                  ]
+                },
+                "to": {
+                  "model": "LeadUser",
+                  "namespace": "public"
+                }
+              },
+              "chatClosedLeads": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "chatClosedById"
+                  ]
+                },
+                "to": {
+                  "model": "Lead",
+                  "namespace": "public"
+                }
+              },
               "createdLeads": {
                 "cardinality": "1:N",
                 "on": {
@@ -1095,6 +1318,36 @@
                   "namespace": "public"
                 }
               },
+              "historyAssignedBy": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "assignedById"
+                  ]
+                },
+                "to": {
+                  "model": "LeadStatusHistory",
+                  "namespace": "public"
+                }
+              },
+              "historyAssignedTo": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "assignedToId"
+                  ]
+                },
+                "to": {
+                  "model": "LeadStatusHistory",
+                  "namespace": "public"
+                }
+              },
               "messages": {
                 "cardinality": "1:N",
                 "on": {
@@ -1110,7 +1363,7 @@
                   "namespace": "public"
                 }
               },
-              "statusHistory": {
+              "statusChanges": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -1389,6 +1642,11 @@
             "Document": {
               "checks": [
                 {
+                  "expression": "\"department\" IN ('ADMIN', 'SALES', 'DESIGN', 'PURCHASE', 'PRODUCTION', 'ACCOUNTS', 'DISPATCH')",
+                  "name": "Document_department_check_1c4f5751",
+                  "prefix": "Document_department_check"
+                },
+                {
                   "expression": "\"status\" IN ('ENQUIRY', 'QUOTATION', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'INVOICE')",
                   "name": "Document_status_check_78e33087",
                   "prefix": "Document_status_check"
@@ -1403,6 +1661,17 @@
                   },
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "department": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Department",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "extension": {
                   "codecId": "pg/text@1",
@@ -1503,6 +1772,14 @@
               "indexes": [
                 {
                   "columns": [
+                    "department"
+                  ],
+                  "name": "Document_department_idx_1676f947",
+                  "prefix": "Document_department_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "leadId"
                   ],
                   "name": "Document_leadId_idx_9113844c",
@@ -1543,6 +1820,25 @@
               ],
               "columns": {
                 "assignedById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "chatClosed": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "chatClosedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "chatClosedById": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": true
@@ -1674,6 +1970,22 @@
                     "namespaceId": "public",
                     "tableName": "User"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "chatClosedById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lead"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
                 }
               ],
               "indexes": [
@@ -1683,6 +1995,14 @@
                   ],
                   "name": "Lead_assignedById_idx_f5db02c3",
                   "prefix": "Lead_assignedById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "chatClosedById"
+                  ],
+                  "name": "Lead_chatClosedById_idx_b8facda2",
+                  "prefix": "Lead_chatClosedById_idx",
                   "unique": false
                 },
                 {
@@ -1747,6 +2067,16 @@
                 }
               ],
               "columns": {
+                "assignedById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "assignedToId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "changedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -1785,6 +2115,11 @@
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": false
+                },
+                "note": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "toStatus": {
                   "codecId": "pg/text@1",
@@ -1831,9 +2166,57 @@
                     "namespaceId": "public",
                     "tableName": "User"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "assignedById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LeadStatusHistory"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "assignedToId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LeadStatusHistory"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "assignedById"
+                  ],
+                  "name": "LeadStatusHistory_assignedById_idx_f5db02c3",
+                  "prefix": "LeadStatusHistory_assignedById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "assignedToId"
+                  ],
+                  "name": "LeadStatusHistory_assignedToId_idx_45a131c2",
+                  "prefix": "LeadStatusHistory_assignedToId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "changedAt"
@@ -1884,6 +2267,11 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "assignedById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -1912,6 +2300,11 @@
                     "namespaceId": "public",
                     "plane": "storage"
                   }
+                },
+                "unassignedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
                 },
                 "userId": {
                   "codecId": "pg/int4@1",
@@ -1953,9 +2346,33 @@
                     "namespaceId": "public",
                     "tableName": "User"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "assignedById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LeadUser"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "assignedById"
+                  ],
+                  "name": "LeadUser_assignedById_idx_f5db02c3",
+                  "prefix": "LeadUser_assignedById_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "leadId"
@@ -2114,6 +2531,18 @@
                 "COLLABORATOR"
               ]
             },
+            "Department": {
+              "kind": "valueSet",
+              "values": [
+                "ADMIN",
+                "SALES",
+                "DESIGN",
+                "PURCHASE",
+                "PRODUCTION",
+                "ACCOUNTS",
+                "DISPATCH"
+              ]
+            },
             "LeadStatus": {
               "kind": "valueSet",
               "values": [
@@ -2146,7 +2575,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3a361acd1cf63747f41e80cf1dbe6bfd161e36d617b7c58581ac9718d9cdbb56"
+    "storageHash": "6d6f24dcadbc3ef4a0a44ea4132f72d58e235645844bd0133119f2bef288c7fa"
   },
   "capabilities": {
     "postgres": {

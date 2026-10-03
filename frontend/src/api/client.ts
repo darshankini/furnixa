@@ -20,7 +20,21 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   })
+  return readResponse<T>(res)
+}
 
+/** POST a multipart form (file uploads). The browser sets the multipart Content-Type itself. */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' },
+    body: form,
+  })
+  return readResponse<T>(res)
+}
+
+async function readResponse<T>(res: Response): Promise<T> {
   let data: unknown = null
   try {
     data = await res.json()
