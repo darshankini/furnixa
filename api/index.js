@@ -15,6 +15,14 @@ export default async function handler(req, res) {
   const url = new URL(req.url, 'http://localhost');
   url.searchParams.delete('path');
   req.url = url.pathname + url.search;
+  // req.query can still carry path=... (Vercel's helper or a cached parse of the original URL),
+  // so set it explicitly from the cleaned URL. All our query params are single values.
+  Object.defineProperty(req, 'query', {
+    value: Object.fromEntries(url.searchParams),
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
 
   return server(req, res);
 }
