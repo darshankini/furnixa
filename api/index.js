@@ -9,5 +9,12 @@ export default async function handler(req, res) {
     return app.getHttpAdapter().getInstance();
   });
   const server = await serverPromise;
+
+  // The vercel.json rewrite (/api/:path* -> /api) appends ?path=... to the URL;
+  // remove it so Nest's ValidationPipe doesn't reject it as an unknown query param
+  const url = new URL(req.url, 'http://localhost');
+  url.searchParams.delete('path');
+  req.url = url.pathname + url.search;
+
   return server(req, res);
 }
