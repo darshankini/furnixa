@@ -4,12 +4,15 @@ export type UserRole =
   | 'ADMIN'
   | 'MANAGER'
   | 'SALES'
-  | 'DESIGNER'
+  | 'CUTSHEET'
+  | 'OPTIMISATION'
   | 'PURCHASE'
   | 'PRODUCTION'
   | 'ACCOUNTS'
   | 'DISPATCH'
   | 'USER'
+
+export type LoginType = 'user' | 'client'
 
 export interface User {
   id: number
@@ -17,11 +20,12 @@ export interface User {
   lastName: string
   email: string
   role: UserRole
+  userType: LoginType
 }
 
 export const authApi = {
-  login: (email: string, password: string) =>
-    apiRequest<{ user: User }>('/auth/login', { method: 'POST', body: { email, password } }),
+  login: (email: string, password: string, loginType: LoginType) =>
+    apiRequest<{ user: User }>('/auth/login', { method: 'POST', body: { email, password, loginType } }),
 
   logout: () => apiRequest<{ message: string }>('/auth/logout', { method: 'POST' }),
 

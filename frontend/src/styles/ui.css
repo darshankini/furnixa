@@ -39,6 +39,8 @@
 
 /* ---------- Confirm dialog ---------- */
 .confirm-dialog {
+  /* Tailwind's preflight sets margin: 0 on everything, which removes the browser's centring of a modal <dialog> */
+  margin: auto;
   border: 0;
   border-radius: 14px;
   padding: 0;

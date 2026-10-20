@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { or } from '@prisma/orm-postgres/orm-client';
 import type { PublicUser } from '../auth/auth.types.js';
+import { toPaise } from '../payments/payments.types.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AssignLeadDto } from './dto/assign-lead.dto.js';
 import type { CreateLeadDto } from './dto/create-lead.dto.js';
@@ -11,13 +12,17 @@ import { LeadAccessService } from './lead-access.service.js';
 import {
   hasRole,
   iso,
+  LEAD_COMPLETE_ROLES,
   LEAD_VIEW_ALL_ROLES,
   must,
+  PRODUCTION_STAGE_LABELS,
+  toMoney,
   toUserRef,
   USER_REF_FIELDS,
   type LeadDetailDto,
   type LeadStatus,
   type LeadSummaryDto,
+  type ProductionStage,
   type UserRefDto,
 } from './leads.types.js';
 
@@ -46,10 +51,16 @@ export class LeadsService {
   async findAll(user: PublicUser, query: ListLeadsQueryDto): Promise<LeadSummaryDto[]> {
     let leads = this.withSummary();
     if (query.status) leads = leads.where({ status: query.status });
-    if (query.clientId) leads = leads.where({ clientId: query.clientId });
+
+    if (user.userType === 'client') {
+      // A client only ever sees their own leads, whatever clientId they ask for
+      leads = leads.where({ clientId: user.id });
+    } else if (query.clientId) {
+      leads = leads.where({ clientId: query.clientId });
+    }
 
     // Everyone except admins/managers only sees leads they created or were ever assigned to
-    if (!hasRole(user, LEAD_VIEW_ALL_ROLES)) {
+    if (user.userType !== 'client' && !hasRole(user, LEAD_VIEW_ALL_ROLES)) {
       leads = leads.where((l) => or(l.createdById.eq(user.id), l.assignments.some((a) => a.userId.eq(user.id))));
     }
 
@@ -74,6 +85,8 @@ export class LeadsService {
       .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
       .include('lastUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
       .include('chatClosedBy', (u) => u.select(...USER_REF_FIELDS))
+      .include('productionStageUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
+      .include('payments', (p) => p.sum('amount'))
       .where({ id })
       .first();
     if (!lead) throw new NotFoundException('Lead not found.');
@@ -102,6 +115,13 @@ export class LeadsService {
       chatClosed: lead.chatClosed,
       createdAt: iso(lead.createdAt),
       updatedAt: iso(lead.updatedAt),
+      requirement: lead.requirement,
+      // Prices are internal: clients never get the amount
+      quotationAmount: user.userType === 'client' ? null : lead.quotationAmount,
+      isFullyPaid: isFullyPaid(lead.quotationAmount, lead.payments),
+      productionStage: lead.productionStage,
+      productionStageUpdatedAt: iso(lead.productionStageUpdatedAt),
+      productionStageUpdatedBy: toUserRef(lead.productionStageUpdatedBy),
       assignedBy: toUserRef(lead.assignedBy),
       lastUpdatedBy: toUserRef(lead.lastUpdatedBy),
       chatClosedAt: iso(lead.chatClosedAt),
@@ -147,6 +167,7 @@ export class LeadsService {
       const lead = await tx.orm.public.Lead.select('id', 'status').create({
         clientId: dto.clientId,
         projectName: dto.projectName,
+        requirement: dto.requirement ?? null,
         createdById: actor.id,
         lastUpdatedById: actor.id,
         assignedById: assigneeIds.length > 0 ? actor.id : null,
@@ -192,9 +213,43 @@ export class LeadsService {
     await this.prisma.orm.public.Lead.where({ id }).update({
       ...(dto.clientId !== undefined && { clientId: dto.clientId }),
       ...(dto.projectName !== undefined && { projectName: dto.projectName }),
+      ...(dto.requirement !== undefined && { requirement: dto.requirement }),
       lastUpdatedById: actor.id,
       updatedAt: Temporal.Now.instant(),
     });
+    return this.findOne(id, actor);
+  }
+
+  /**
+   * Sets the workshop stage. Only while the lead is in Production: before that there is nothing to track,
+   * and after it the stages are a read-only record. Each change is added to the lead history.
+   */
+  async setProductionStage(id: number, stage: ProductionStage, actor: PublicUser): Promise<LeadDetailDto> {
+    const lead = await this.access.getManageable(id, actor);
+    if (lead.status !== 'PRODUCTION') {
+      throw new BadRequestException('The production stage can only be changed while the lead is in Production.');
+    }
+
+    await this.prisma.db.transaction(async (tx) => {
+      const now = Temporal.Now.instant();
+      await tx.orm.public.Lead.where({ id }).update({
+        productionStage: stage,
+        productionStageUpdatedAt: now,
+        productionStageUpdatedById: actor.id,
+        lastUpdatedById: actor.id,
+        updatedAt: now,
+      });
+      await tx.orm.public.LeadStatusHistory.create({
+        leadId: id,
+        fromStatus: lead.status,
+        toStatus: lead.status,
+        changedById: actor.id,
+        assignedById: null,
+        assignedToId: null,
+        note: `Production stage: ${PRODUCTION_STAGE_LABELS[stage]}`,
+      });
+    });
+
     return this.findOne(id, actor);
   }
 
@@ -211,6 +266,26 @@ export class LeadsService {
     const fromStatus: LeadStatus = lead.status;
     const toStatus: LeadStatus = dto.status ?? lead.status;
     const note = dto.note ?? null;
+
+    // Moving into Quotation needs the amount (the page asks for it in a popup); payments are tracked against it
+    const movingToQuotation = toStatus === 'QUOTATION' && fromStatus !== 'QUOTATION';
+    if (movingToQuotation && dto.quotationAmount === undefined) {
+      throw new BadRequestException('Please enter the quotation amount.');
+    }
+
+    // Completing closes the lead: admins and managers only, and only once every rupee is received
+    if (toStatus === 'COMPLETED' && fromStatus !== 'COMPLETED') {
+      if (!hasRole(actor, LEAD_COMPLETE_ROLES)) {
+        throw new ForbiddenException('Only an admin or manager can mark a lead as completed.');
+      }
+      const totals = await this.prisma.orm.public.Lead.select('quotationAmount')
+        .where({ id })
+        .include('payments', (p) => p.sum('amount'))
+        .first();
+      if (!totals || !isFullyPaid(totals.quotationAmount, totals.payments)) {
+        throw new BadRequestException('The lead can be completed only after the full quotation amount is received.');
+      }
+    }
 
     await this.prisma.db.transaction(async (tx) => {
       const existing = await tx.orm.public.LeadUser.select('id', 'userId', 'unassignedAt').where({ leadId: id }).all();
@@ -269,6 +344,7 @@ export class LeadsService {
 
       await tx.orm.public.Lead.where({ id }).update({
         status: toStatus,
+        ...(movingToQuotation && { quotationAmount: toMoney(dto.quotationAmount!) }),
         ...(toAdd.length > 0 && { assignedById: actor.id }),
         lastUpdatedById: actor.id,
         updatedAt: now,
@@ -303,4 +379,10 @@ export class LeadsService {
       throw new BadRequestException('One or more selected users do not exist or are inactive.');
     }
   }
+}
+
+/** Payments (their sum, null when there are none) cover the whole quotation amount */
+function isFullyPaid(quotationAmount: string | null, paid: string | null): boolean {
+  if (quotationAmount === null) return false;
+  return toPaise(paid ?? 0) >= toPaise(quotationAmount);
 }

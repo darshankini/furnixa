@@ -1,7 +1,9 @@
 import { CalendarDays, ChartColumn, Clock, type LucideIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/auth-context'
 import { DUMMY_LEADS } from '../data/dummy-leads'
 import { PHASE_BY_STATUS, PHASES } from '../data/phases'
+import { isClient } from '../data/roles'
 import './dashboard.css'
 
 const DAY = 24 * 60 * 60 * 1000
@@ -49,6 +51,22 @@ function StatCard({ label, value, caption, icon: Icon, highlight }: StatCardProp
 
 export function DashboardPage() {
   const { user } = useAuth()
+
+  // Lead statistics are for staff only; a client just gets a way to their own leads
+  if (isClient(user)) {
+    return (
+      <div className="dashboard">
+        <div className="page-header">
+          <h1>Dashboard</h1>
+          <p>Welcome back, {user?.firstName} {user?.lastName}</p>
+        </div>
+        <section className="panel state-box">
+          <p>Follow the progress of your projects and chat with our team from your leads.</p>
+          <Link to="/leads" className="btn btn-accent">View my leads</Link>
+        </section>
+      </div>
+    )
+  }
 
   // Dummy data for now: these will come from the leads API later
   const leads = DUMMY_LEADS

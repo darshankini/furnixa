@@ -93,6 +93,10 @@ prisma/*.db-wal
 backend/logs/
 backend/tmp/
 backend/cache/
+backend/.claude/
+backend/.cursor/
+backend/.devin/
+backend/.agents/
 
 # ==========================================
 # Frontend generated/cache files

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import type { LoginType } from '../api/auth'
 import { ApiError } from '../api/client'
 import { AuthLayout } from '../components/AuthLayout'
 import { useAuth } from '../context/auth-context'
@@ -20,10 +21,23 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [loginType, setLoginType] = useState<LoginType>('user')
+  
+    const options: { label: string; value: LoginType }[] = [
+      {
+        label : 'User',
+        value : 'user'
+      },
+      {
+        label : 'Client',
+        value : 'client'
+      }
+    ]
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
+    
 
     if (!email.trim() || !password) {
       setError('Please enter your email and password.')
@@ -32,7 +46,7 @@ export function LoginPage() {
 
     setSubmitting(true)
     try {
-      await login(email.trim(), password)
+      await login(email.trim(), password,loginType)
       navigate(state.from?.pathname ?? '/dashboard', { replace: true })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Unable to reach the server. Please try again.')
@@ -82,6 +96,30 @@ export function LoginPage() {
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
+          </div>
+        </div>
+
+        {/* <div className="field">
+          <div className='inline-flex'>
+          <input type="radio" name="login_type" value="user"/><label>User</label>
+          <input type="radio" name="login_type" value="client"/><label>Client</label>
+          </div>
+        </div> */}
+        <div className='w-full'>
+          <label className='mb-2 block text-sm font-semibold text-[#b4530f]'>Login as</label>
+          <div className='flex gap-3 rounded-xl p-1'>
+            {options.map((option) => (
+              <label
+              key={option.value}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200
+                ${loginType === option.value ? 'border-[#b4530f] bg-white text-[#b4530f]' :
+                  'border-transparent text-gray-600 hover:bg-white hover:text-gray-900'
+                }`}>
+              <input type="radio" name="login_type" value={option.value} checked={loginType === option.value}
+              onChange={()=>setLoginType(option.value)} className='h-4 w-4 accent-[#b4530f]'/>
+              {option.label}
+              </label>
+            ))}
           </div>
         </div>
 

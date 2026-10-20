@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react'
-import type { User } from '../api/auth'
+import type { LoginType, User } from '../api/auth'
 
 export interface AuthContextValue {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, loginType: LoginType) => Promise<void>
   logout: () => Promise<void>
   /** Reload the signed-in user from the server, e.g. after editing your own profile */
   refreshUser: () => Promise<void>

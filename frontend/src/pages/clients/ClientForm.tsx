@@ -30,6 +30,16 @@ function validate(v: ClientFormValues): FieldErrors {
   }
   if (v.email.trim() && !/^\S+@\S+\.\S+$/.test(v.email.trim())) e.email = 'Please enter a valid email address.'
   if (v.address.trim().length > 500) e.address = 'Address must be 500 characters or fewer.'
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9\s])(?=\S{8,}).*$/;
+  if (!passwordRegex.test(v.password)) {
+    e.password = 'Password must be at least 8 characters and contain uppercase, lowercase, and a special character.';
+  }
+  if(!passwordRegex.test(v.confirmPassword)){
+    e.confirmPassword = 'Password must be at least 8 characters and contain uppercase, lowercase, and a special character.'
+  }
+  if(v.password !== v.confirmPassword){
+    v.confirmPassword = 'Confirm Password does not match with password.'
+  }
   return e
 }
 
@@ -111,8 +121,20 @@ export function ClientForm({ mode, initialValues, cancelTo, onSubmit }: Props) {
 
         <div className="form-field">
           <label htmlFor="email">Email</label>
-          <input {...fieldProps('email')} type="email" autoComplete="off" placeholder="Optional" />
+          <input {...fieldProps('email')} type="email" autoComplete="off" placeholder="Email" />
           {fieldError('email')}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="password">Password</label>
+          <input {...fieldProps('password')} type="password" autoComplete="off" placeholder="Confirm Password" />
+          {fieldError('password')}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <input {...fieldProps('confirmPassword')} type="password" autoComplete="off" placeholder="Optional" />
+          {fieldError('confirmPassword')}
         </div>
 
         <div className="form-field span-2">

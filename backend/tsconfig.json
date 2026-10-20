@@ -20,5 +20,7 @@
     "strictPropertyInitialization": false,
     "resolveJsonModule":true,
     "types": ["vitest/globals", "node"]
-  }
+  },
+  // migrations/ is generated and run by the Prisma CLI, which uses its own import rules
+  "exclude": ["node_modules", "dist", "migrations"]
 }

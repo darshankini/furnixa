@@ -1,10 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/layout/AppLayout'
-import { GuestRoute, ProtectedRoute, RequireRole } from './components/RouteGuards'
+import { GuestRoute, ProtectedRoute, RequireRole, StaffOnly } from './components/RouteGuards'
 import {
   CLIENT_MANAGE_ROLES,
   LEAD_CREATE_ROLES,
   LEAD_MANAGE_ROLES,
+  PAYMENT_ROLES,
   USER_CREATE_ROLES,
   USER_EDIT_ROLES,
   USER_VIEW_ROLES,
@@ -20,6 +21,8 @@ import { LeadDetailPage } from './pages/leads/LeadDetailPage'
 import { LeadEditPage } from './pages/leads/LeadEditPage'
 import { LeadsListPage } from './pages/leads/LeadsListPage'
 import { LoginPage } from './pages/LoginPage'
+import { LeadPaymentsPage } from './pages/payments/LeadPaymentsPage'
+import { PaymentsListPage } from './pages/payments/PaymentsListPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { UserCreatePage } from './pages/users/UserCreatePage'
 import { UserDetailPage } from './pages/users/UserDetailPage'
@@ -45,6 +48,9 @@ export default function App() {
           <Route path="/leads" element={<LeadsListPage />} />
           <Route path="/phases/:phase" element={<LeadsListPage />} />
           <Route path="/leads/:id" element={<LeadDetailPage />} />
+
+          {/* Clients only get the dashboard and their own leads above */}
+          <Route element={<StaffOnly />}>
           <Route element={<RequireRole roles={LEAD_CREATE_ROLES} />}>
             <Route path="/leads/new" element={<LeadCreatePage />} />
           </Route>
@@ -60,6 +66,11 @@ export default function App() {
             <Route path="/clients/:id/edit" element={<ClientEditPage />} />
           </Route>
 
+          <Route element={<RequireRole roles={PAYMENT_ROLES} />}>
+            <Route path="/payments" element={<PaymentsListPage />} />
+            <Route path="/payments/:leadId" element={<LeadPaymentsPage />} />
+          </Route>
+
           <Route element={<RequireRole roles={USER_VIEW_ROLES} />}>
             <Route path="/users" element={<UsersListPage />} />
             <Route path="/users/:id" element={<UserDetailPage />} />
@@ -69,6 +80,7 @@ export default function App() {
           </Route>
           <Route element={<RequireRole roles={USER_EDIT_ROLES} />}>
             <Route path="/users/:id/edit" element={<UserEditPage />} />
+          </Route>
           </Route>
         </Route>
       </Route>

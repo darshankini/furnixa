@@ -8,6 +8,7 @@ export interface ClientRecord {
   alternateMobile: string | null
   email: string | null
   address: string | null
+  password : string
   leadCount: number
   createdAt: string
   updatedAt: string
@@ -21,6 +22,8 @@ export interface ClientInput {
   alternateMobile: string | null
   email: string | null
   address: string | null
+  password: string | null
+  confirmPassword: string | null
 }
 
 export const clientsApi = {

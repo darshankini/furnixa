@@ -15,6 +15,8 @@ import {
   type PublicUser,
   type ResetTokenPayload,
   type User,
+  type UserType,
+  CLIENT_ROLE,
 } from './auth.types.js';
 
 const INVALID_RESET_LINK = 'This reset link is invalid or has expired.';
@@ -28,7 +30,16 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async login(email: string, password: string): Promise<{ user: PublicUser; token: string }> {
+  async login(email: string, password: string, loginType: UserType): Promise<{ user: PublicUser; token: string }> {
+    const user = loginType === 'client' ? await this.findClientForLogin(email, password) : await this.findUserForLogin(email, password);
+
+    const payload: JwtPayload = { sub: user.id, userType: loginType };
+    const token = await this.jwt.signAsync(payload);
+
+    return { user: toPublicUser(user, loginType), token };
+  }
+
+  private async findUserForLogin(email: string, password: string) {
     const user = await this.prisma.orm.public.User.where({ email }).first();
 
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
@@ -37,11 +48,17 @@ export class AuthService {
     if (!user.isActive) {
       throw new ForbiddenException('Your account is disabled. Contact the administrator.');
     }
+    return user;
+  }
 
-    const payload: JwtPayload = { sub: user.id };
-    const token = await this.jwt.signAsync(payload);
+  // Clients have no isActive or role columns, and passwordHash stays null until a password is set
+  private async findClientForLogin(email: string, password: string) {
+    const client = await this.prisma.orm.public.Client.where({ email }).first();
 
-    return { user: toPublicUser(user), token };
+    if (!client?.passwordHash || !(await bcrypt.compare(password, client.passwordHash))) {
+      throw new UnauthorizedException('Invalid email or password.');
+    }
+    return { ...client, email: client.email ?? email, role: CLIENT_ROLE };
   }
 
   /**

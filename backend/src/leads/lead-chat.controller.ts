@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { AllowClients } from '../auth/allow-clients.decorator.js';
 import type { PublicUser } from '../auth/auth.types.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -16,6 +17,7 @@ export class LeadChatController {
 
   /** ?after=<messageId> returns only newer messages, so the page can poll cheaply */
   @Get('messages')
+  @AllowClients()
   async list(
     @Param('id', ParseIntPipe) id: number,
     @Query('after', new ParseIntPipe({ optional: true })) after: number | undefined,
@@ -25,6 +27,7 @@ export class LeadChatController {
   }
 
   @Post('messages')
+  @AllowClients()
   async send(@Param('id', ParseIntPipe) id: number, @Body() dto: SendMessageDto, @CurrentUser() user: PublicUser) {
     return { message: await this.chat.send(id, dto.message, user) };
   }

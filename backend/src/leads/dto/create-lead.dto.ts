@@ -1,6 +1,6 @@
 import { Transform, Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayUnique, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from 'class-validator';
-import { trim } from '../../clients/dto/client-validation.js';
+import { ArrayMaxSize, ArrayUnique, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min, ValidateIf } from 'class-validator';
+import { hasValue, trim, trimOrNull } from '../../clients/dto/client-validation.js';
 
 export class CreateLeadDto {
   @Type(() => Number)
@@ -13,6 +13,13 @@ export class CreateLeadDto {
   @IsNotEmpty({ message: 'Project name is required.' })
   @IsString()
   projectName: string;
+
+  /** Free text, a few lines: sizes and quantities the client wants. "" or null clears it. */
+  @Transform(trimOrNull)
+  @ValidateIf(hasValue)
+  @MaxLength(2000, { message: 'Requirement must be 2000 characters or fewer.' })
+  @IsString()
+  requirement?: string | null;
 
   /** Optional: users to assign straight away. A sales person who creates a lead is always assigned to it. */
   @IsOptional()

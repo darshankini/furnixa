@@ -1,5 +1,5 @@
-import { Transform } from 'class-transformer';
-import { ArrayMaxSize, ArrayUnique, IsArray, IsIn, IsInt, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { ArrayMaxSize, ArrayUnique, IsArray, IsIn, IsInt, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateIf } from 'class-validator';
 import { hasValue, trimOrNull } from '../../clients/dto/client-validation.js';
 import { LEAD_STATUSES, type LeadStatus } from '../leads.types.js';
 
@@ -24,4 +24,12 @@ export class AssignLeadDto {
   @MaxLength(500, { message: 'Note must be 500 characters or fewer.' })
   @IsString()
   note?: string | null;
+
+  /** Required when the lead moves into Quotation (LeadsService checks that); ignored otherwise */
+  @IsOptional()
+  @Type(() => Number)
+  @Max(9_999_999_999.99, { message: 'Quotation amount is too large.' })
+  @Min(1, { message: 'Quotation amount must be more than 0.' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Quotation amount must be a number with at most 2 decimals.' })
+  quotationAmount?: number;
 }

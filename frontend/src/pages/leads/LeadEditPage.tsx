@@ -51,7 +51,7 @@ function LeadEdit({ id }: { id: number }) {
       ) : (
         <LeadForm
           mode="edit"
-          initialValues={{ clientId: String(lead.client.id), projectName: lead.projectName, assigneeIds: [] }}
+          initialValues={{ clientId: String(lead.client.id), projectName: lead.projectName, requirement: lead.requirement ?? '', assigneeIds: [] }}
           cancelTo={`/leads/${id}`}
           onSubmit={handleSubmit}
         />

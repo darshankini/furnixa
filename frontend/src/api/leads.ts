@@ -1,9 +1,9 @@
 import type { UserRole } from './auth'
 import { apiRequest, apiUpload } from './client'
-import type { LeadStatus } from '../data/phases'
+import type { LeadStatus, ProductionStage } from '../data/phases'
 
 /** Matches the Department enum in backend/src/prisma/contract.prisma */
-export type Department = 'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH'
+export type Department = 'ADMIN' | 'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH'
 
 export interface UserRef {
   id: number
@@ -54,6 +54,16 @@ export interface LeadHistoryEntry {
 }
 
 export interface LeadDetail extends LeadSummary {
+  /** What the client wants (sizes, quantities); null when not filled in */
+  requirement: string | null
+  /** Decimal string such as "100000.00"; null until the lead reaches Quotation (always null for clients) */
+  quotationAmount: string | null
+  /** Payments add up to the quotation amount, so admins and managers may complete the lead */
+  isFullyPaid: boolean
+  /** Workshop stage inside the Production phase; null until someone picks one */
+  productionStage: ProductionStage | null
+  productionStageUpdatedAt: string | null
+  productionStageUpdatedBy: UserRef | null
   assignedBy: UserRef | null
   lastUpdatedBy: UserRef | null
   chatClosedAt: string | null
@@ -67,6 +77,8 @@ export interface LeadDetail extends LeadSummary {
 export interface ChatMessage {
   id: number
   message: string
+  /** A client and a staff user can share the same id, so compare both */
+  senderType: 'user' | 'client'
   user: UserRef
   createdAt: string
 }
@@ -86,6 +98,8 @@ export interface LeadDocument {
 export interface LeadInput {
   clientId: number
   projectName: string
+  /** "" or null clears it */
+  requirement?: string | null
 }
 
 export interface AssignInput {
@@ -94,6 +108,8 @@ export interface AssignInput {
   /** Everyone who should work on the lead now; others are taken off it */
   userIds: number[]
   note?: string | null
+  /** Required when moving the lead into Quotation */
+  quotationAmount?: number
 }
 
 export const leadsApi = {
@@ -119,6 +135,10 @@ export const leadsApi = {
 
   assign: (id: number, input: AssignInput) =>
     apiRequest<{ lead: LeadDetail }>(`/leads/${id}/assign`, { method: 'POST', body: input }),
+
+  /** Only while the lead is in Production */
+  setProductionStage: (id: number, stage: ProductionStage) =>
+    apiRequest<{ lead: LeadDetail }>(`/leads/${id}/production-stage`, { method: 'PATCH', body: { stage } }),
 
   /** `after`: only messages newer than this id (for polling) */
   messages: (id: number, after?: number) =>

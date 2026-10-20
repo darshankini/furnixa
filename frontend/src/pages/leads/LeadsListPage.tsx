@@ -5,7 +5,7 @@ import { ApiError } from '../../api/client'
 import { leadsApi, type LeadSummary } from '../../api/leads'
 import { useAuth } from '../../context/auth-context'
 import { PHASES, type LeadStatus } from '../../data/phases'
-import { LEAD_CREATE_ROLES, LEAD_MANAGE_ROLES } from '../../data/roles'
+import { LEAD_CREATE_ROLES, LEAD_MANAGE_ROLES,canEditLead } from '../../data/roles'
 import { formatDate, initialsOf } from '../../utils/format'
 import { PhaseBadge } from './PhaseBadge'
 
@@ -29,6 +29,7 @@ function LeadsList({ fixedStatus, title, unknownPhase }: { fixedStatus?: LeadSta
   const [statusFilter, setStatusFilter] = useState<LeadStatus | ''>('')
 
   const canCreate = !!me && LEAD_CREATE_ROLES.includes(me.role)
+  /** Show the actions column if the user can manage any phase; each row then checks its own phase */
   const canManage = !!me && LEAD_MANAGE_ROLES.includes(me.role)
 
   useEffect(() => {
@@ -174,7 +175,7 @@ function LeadsList({ fixedStatus, title, unknownPhase }: { fixedStatus?: LeadSta
                     <td className="text-muted">{formatDate(l.updatedAt)}</td>
                     {canManage && (
                       <td className="col-actions">
-                        <Link
+                        {canEditLead(me.role, l.status) && <Link
                           to={`/leads/${l.id}/edit`}
                           className="icon-button"
                           onClick={(e) => e.stopPropagation()}
@@ -182,7 +183,7 @@ function LeadsList({ fixedStatus, title, unknownPhase }: { fixedStatus?: LeadSta
                           title="Edit"
                         >
                           <Pencil size={16} aria-hidden="true" />
-                        </Link>
+                        </Link>}
                       </td>
                     )}
                   </tr>

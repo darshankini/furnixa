@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Post, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Response } from 'express';
+import { AllowClients } from './allow-clients.decorator.js';
 import { AuthService } from './auth.service.js';
 import { AUTH_COOKIE, type PublicUser } from './auth.types.js';
 import { CurrentUser } from './current-user.decorator.js';
@@ -28,11 +29,12 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
-    const { user, token } = await this.auth.login(dto.email.trim().toLowerCase(), dto.password);
+    const { user, token } = await this.auth.login(dto.email.trim().toLowerCase(), dto.password,dto.loginType);
     res.cookie(AUTH_COOKIE, token, {
       ...this.cookieOptions(),
       maxAge: Number(this.config.get('JWT_EXPIRES_IN_SECONDS', 86400)) * 1000,
     });
+    console.log(user);
     return { user };
   }
 
@@ -45,6 +47,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @AllowClients()
   me(@CurrentUser() user: PublicUser) {
     return { user };
   }

@@ -28,6 +28,10 @@
       "model": "LeadUser",
       "namespace": "public"
     },
+    "Payment": {
+      "model": "Payment",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -54,16 +58,16 @@
             "codecId": "pg/text@1",
             "members": [
               {
-                "name": "ADMIN",
-                "value": "ADMIN"
-              },
-              {
                 "name": "SALES",
                 "value": "SALES"
               },
               {
-                "name": "DESIGN",
-                "value": "DESIGN"
+                "name": "CUTSHEET",
+                "value": "CUTSHEET"
+              },
+              {
+                "name": "OPTIMISATION",
+                "value": "OPTIMISATION"
               },
               {
                 "name": "PURCHASE",
@@ -95,6 +99,10 @@
                 "value": "QUOTATION"
               },
               {
+                "name": "CUTSHEET",
+                "value": "CUTSHEET"
+              },
+              {
                 "name": "OPTIMISATION",
                 "value": "OPTIMISATION"
               },
@@ -111,8 +119,102 @@
                 "value": "DISPATCH"
               },
               {
-                "name": "INVOICE",
-                "value": "INVOICE"
+                "name": "ACCOUNTS",
+                "value": "ACCOUNTS"
+              },
+              {
+                "name": "COMPLETED",
+                "value": "COMPLETED"
+              }
+            ]
+          },
+          "PaymentMode": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "CASH",
+                "value": "CASH"
+              },
+              {
+                "name": "UPI",
+                "value": "UPI"
+              },
+              {
+                "name": "CARD",
+                "value": "CARD"
+              },
+              {
+                "name": "CHEQUE",
+                "value": "CHEQUE"
+              }
+            ]
+          },
+          "ProductionStage": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PRESSING_01_8FT",
+                "value": "PRESSING_01_8FT"
+              },
+              {
+                "name": "PRESSING_02_10FT",
+                "value": "PRESSING_02_10FT"
+              },
+              {
+                "name": "CUTTING_01",
+                "value": "CUTTING_01"
+              },
+              {
+                "name": "CUTTING_02",
+                "value": "CUTTING_02"
+              },
+              {
+                "name": "EDGE_BENDING_01",
+                "value": "EDGE_BENDING_01"
+              },
+              {
+                "name": "EDGE_BENDING_02",
+                "value": "EDGE_BENDING_02"
+              },
+              {
+                "name": "FINISHING",
+                "value": "FINISHING"
+              },
+              {
+                "name": "CUT_OUT_MANUAL",
+                "value": "CUT_OUT_MANUAL"
+              },
+              {
+                "name": "CARPENTER",
+                "value": "CARPENTER"
+              },
+              {
+                "name": "ROUTER_AND_HANDLE",
+                "value": "ROUTER_AND_HANDLE"
+              },
+              {
+                "name": "DRILLING",
+                "value": "DRILLING"
+              },
+              {
+                "name": "CNC",
+                "value": "CNC"
+              },
+              {
+                "name": "ASSEMBLY_QC",
+                "value": "ASSEMBLY_QC"
+              },
+              {
+                "name": "PACKING",
+                "value": "PACKING"
+              },
+              {
+                "name": "DISPATCH_DEPARTMENT",
+                "value": "DISPATCH_DEPARTMENT"
+              },
+              {
+                "name": "BILLING",
+                "value": "BILLING"
               }
             ]
           },
@@ -132,8 +234,12 @@
                 "value": "SALES"
               },
               {
-                "name": "DESIGNER",
-                "value": "DESIGNER"
+                "name": "CUTSHEET",
+                "value": "CUTSHEET"
+              },
+              {
+                "name": "OPTIMISATION",
+                "value": "OPTIMISATION"
               },
               {
                 "name": "PURCHASE",
@@ -144,12 +250,12 @@
                 "value": "PRODUCTION"
               },
               {
-                "name": "ACCOUNTS",
-                "value": "ACCOUNTS"
-              },
-              {
                 "name": "DISPATCH",
                 "value": "DISPATCH"
+              },
+              {
+                "name": "ACCOUNTS",
+                "value": "ACCOUNTS"
               },
               {
                 "name": "USER",
@@ -161,6 +267,13 @@
         "models": {
           "ChatMessage": {
             "fields": {
+              "clientId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -197,6 +310,13 @@
                 }
               },
               "userId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "userType": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -205,6 +325,22 @@
               }
             },
             "relations": {
+              "client": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "clientId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Client",
+                  "namespace": "public"
+                }
+              },
               "lead": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -223,7 +359,7 @@
               },
               "user": {
                 "cardinality": "N:1",
-                "nullable": false,
+                "nullable": true,
                 "on": {
                   "localFields": [
                     "userId"
@@ -240,6 +376,9 @@
             },
             "storage": {
               "fields": {
+                "clientId": {
+                  "column": "clientId"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -257,6 +396,9 @@
                 },
                 "userId": {
                   "column": "userId"
+                },
+                "userType": {
+                  "column": "userType"
                 }
               },
               "namespaceId": "public",
@@ -321,6 +463,13 @@
                   "kind": "scalar"
                 }
               },
+              "passwordHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -342,6 +491,21 @@
                 },
                 "to": {
                   "model": "Lead",
+                  "namespace": "public"
+                }
+              },
+              "messages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "clientId"
+                  ]
+                },
+                "to": {
+                  "model": "ChatMessage",
                   "namespace": "public"
                 }
               }
@@ -371,6 +535,9 @@
                 },
                 "mobile": {
                   "column": "mobile"
+                },
+                "passwordHash": {
+                  "column": "passwordHash"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -621,8 +788,53 @@
                   "kind": "scalar"
                 }
               },
+              "productionStage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ProductionStage",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "productionStageUpdatedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "productionStageUpdatedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "projectName": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "quotationAmount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                }
+              },
+              "requirement": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -775,6 +987,37 @@
                   "namespace": "public"
                 }
               },
+              "payments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "leadId"
+                  ]
+                },
+                "to": {
+                  "model": "Payment",
+                  "namespace": "public"
+                }
+              },
+              "productionStageUpdatedBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "productionStageUpdatedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
               "statusHistory": {
                 "cardinality": "1:N",
                 "on": {
@@ -820,8 +1063,23 @@
                 "lastUpdatedById": {
                   "column": "lastUpdatedById"
                 },
+                "productionStage": {
+                  "column": "productionStage"
+                },
+                "productionStageUpdatedAt": {
+                  "column": "productionStageUpdatedAt"
+                },
+                "productionStageUpdatedById": {
+                  "column": "productionStageUpdatedById"
+                },
                 "projectName": {
                   "column": "projectName"
+                },
+                "quotationAmount": {
+                  "column": "quotationAmount"
+                },
+                "requirement": {
+                  "column": "requirement"
                 },
                 "status": {
                   "column": "status"
@@ -1148,6 +1406,140 @@
               "table": "LeadUser"
             }
           },
+          "Payment": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdById": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "leadId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "mode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "PaymentMode",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "note": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "paidOn": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "createdBy": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "lead": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "leadId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Lead",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "createdById": {
+                  "column": "createdById"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "leadId": {
+                  "column": "leadId"
+                },
+                "mode": {
+                  "column": "mode"
+                },
+                "note": {
+                  "column": "note"
+                },
+                "paidOn": {
+                  "column": "paidOn"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Payment"
+            }
+          },
           "User": {
             "fields": {
               "createdAt": {
@@ -1363,6 +1755,36 @@
                   "namespace": "public"
                 }
               },
+              "payments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdById"
+                  ]
+                },
+                "to": {
+                  "model": "Payment",
+                  "namespace": "public"
+                }
+              },
+              "productionStageLeads": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "productionStageUpdatedById"
+                  ]
+                },
+                "to": {
+                  "model": "Lead",
+                  "namespace": "public"
+                }
+              },
               "statusChanges": {
                 "cardinality": "1:N",
                 "on": {
@@ -1442,6 +1864,11 @@
           "table": {
             "ChatMessage": {
               "columns": {
+                "clientId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -1482,6 +1909,11 @@
                 "userId": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
+                  "nullable": true
+                },
+                "userType": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
                   "nullable": false
                 }
               },
@@ -1518,9 +1950,33 @@
                     "namespaceId": "public",
                     "tableName": "User"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "clientId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatMessage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Client"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "clientId"
+                  ],
+                  "name": "ChatMessage_clientId_idx_153a9a49",
+                  "prefix": "ChatMessage_clientId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "createdAt"
@@ -1603,6 +2059,11 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "passwordHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -1642,13 +2103,13 @@
             "Document": {
               "checks": [
                 {
-                  "expression": "\"department\" IN ('ADMIN', 'SALES', 'DESIGN', 'PURCHASE', 'PRODUCTION', 'ACCOUNTS', 'DISPATCH')",
-                  "name": "Document_department_check_1c4f5751",
+                  "expression": "\"department\" IN ('SALES', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'ACCOUNTS', 'DISPATCH')",
+                  "name": "Document_department_check_602d6925",
                   "prefix": "Document_department_check"
                 },
                 {
-                  "expression": "\"status\" IN ('ENQUIRY', 'QUOTATION', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'INVOICE')",
-                  "name": "Document_status_check_78e33087",
+                  "expression": "\"status\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'COMPLETED')",
+                  "name": "Document_status_check_19b95927",
                   "prefix": "Document_status_check"
                 }
               ],
@@ -1813,8 +2274,13 @@
             "Lead": {
               "checks": [
                 {
-                  "expression": "\"status\" IN ('ENQUIRY', 'QUOTATION', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'INVOICE')",
-                  "name": "Lead_status_check_78e33087",
+                  "expression": "\"productionStage\" IN ('PRESSING_01_8FT', 'PRESSING_02_10FT', 'CUTTING_01', 'CUTTING_02', 'EDGE_BENDING_01', 'EDGE_BENDING_02', 'FINISHING', 'CUT_OUT_MANUAL', 'CARPENTER', 'ROUTER_AND_HANDLE', 'DRILLING', 'CNC', 'ASSEMBLY_QC', 'PACKING', 'DISPATCH_DEPARTMENT', 'BILLING')",
+                  "name": "Lead_productionStage_check_388366db",
+                  "prefix": "Lead_productionStage_check"
+                },
+                {
+                  "expression": "\"status\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'COMPLETED')",
+                  "name": "Lead_status_check_19b95927",
                   "prefix": "Lead_status_check"
                 }
               ],
@@ -1876,10 +2342,45 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "productionStage": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ProductionStage",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "productionStageUpdatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "productionStageUpdatedById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "projectName": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "quotationAmount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                },
+                "requirement": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "status": {
                   "codecId": "pg/text@1",
@@ -1986,6 +2487,22 @@
                     "namespaceId": "public",
                     "tableName": "User"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "productionStageUpdatedById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lead"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
                 }
               ],
               "indexes": [
@@ -2039,6 +2556,14 @@
                 },
                 {
                   "columns": [
+                    "productionStageUpdatedById"
+                  ],
+                  "name": "Lead_productionStageUpdatedById_idx_c7ffc0b1",
+                  "prefix": "Lead_productionStageUpdatedById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "status"
                   ],
                   "name": "Lead_status_idx_e98638ab",
@@ -2056,13 +2581,13 @@
             "LeadStatusHistory": {
               "checks": [
                 {
-                  "expression": "\"fromStatus\" IN ('ENQUIRY', 'QUOTATION', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'INVOICE')",
-                  "name": "LeadStatusHistory_fromStatus_check_7ac22622",
+                  "expression": "\"fromStatus\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'COMPLETED')",
+                  "name": "LeadStatusHistory_fromStatus_check_fddf8cfd",
                   "prefix": "LeadStatusHistory_fromStatus_check"
                 },
                 {
-                  "expression": "\"toStatus\" IN ('ENQUIRY', 'QUOTATION', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'INVOICE')",
-                  "name": "LeadStatusHistory_toStatus_check_22392df3",
+                  "expression": "\"toStatus\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'COMPLETED')",
+                  "name": "LeadStatusHistory_toStatus_check_5fc3f8d6",
                   "prefix": "LeadStatusHistory_toStatus_check"
                 }
               ],
@@ -2404,11 +2929,147 @@
                 }
               ]
             },
+            "Payment": {
+              "checks": [
+                {
+                  "expression": "\"mode\" IN ('CASH', 'UPI', 'CARD', 'CHEQUE')",
+                  "name": "Payment_mode_check_2a8e01d1",
+                  "prefix": "Payment_mode_check"
+                }
+              ],
+              "columns": {
+                "amount": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 12,
+                    "scale": 2
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "createdById": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "leadId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "mode": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "PaymentMode",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "note": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "paidOn": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "leadId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Payment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lead"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "createdById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Payment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdById"
+                  ],
+                  "name": "Payment_createdById_idx_8bf640ed",
+                  "prefix": "Payment_createdById_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "leadId"
+                  ],
+                  "name": "Payment_leadId_idx_9113844c",
+                  "prefix": "Payment_leadId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "paidOn"
+                  ],
+                  "name": "Payment_paidOn_idx_100b346d",
+                  "prefix": "Payment_paidOn_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "User": {
               "checks": [
                 {
-                  "expression": "\"role\" IN ('ADMIN', 'MANAGER', 'SALES', 'DESIGNER', 'PURCHASE', 'PRODUCTION', 'ACCOUNTS', 'DISPATCH', 'USER')",
-                  "name": "User_role_check_b6eade79",
+                  "expression": "\"role\" IN ('ADMIN', 'MANAGER', 'SALES', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'USER')",
+                  "name": "User_role_check_e190c4b5",
                   "prefix": "User_role_check"
                 }
               ],
@@ -2534,9 +3195,9 @@
             "Department": {
               "kind": "valueSet",
               "values": [
-                "ADMIN",
                 "SALES",
-                "DESIGN",
+                "CUTSHEET",
+                "OPTIMISATION",
                 "PURCHASE",
                 "PRODUCTION",
                 "ACCOUNTS",
@@ -2548,11 +3209,43 @@
               "values": [
                 "ENQUIRY",
                 "QUOTATION",
+                "CUTSHEET",
                 "OPTIMISATION",
                 "PURCHASE",
                 "PRODUCTION",
                 "DISPATCH",
-                "INVOICE"
+                "ACCOUNTS",
+                "COMPLETED"
+              ]
+            },
+            "PaymentMode": {
+              "kind": "valueSet",
+              "values": [
+                "CASH",
+                "UPI",
+                "CARD",
+                "CHEQUE"
+              ]
+            },
+            "ProductionStage": {
+              "kind": "valueSet",
+              "values": [
+                "PRESSING_01_8FT",
+                "PRESSING_02_10FT",
+                "CUTTING_01",
+                "CUTTING_02",
+                "EDGE_BENDING_01",
+                "EDGE_BENDING_02",
+                "FINISHING",
+                "CUT_OUT_MANUAL",
+                "CARPENTER",
+                "ROUTER_AND_HANDLE",
+                "DRILLING",
+                "CNC",
+                "ASSEMBLY_QC",
+                "PACKING",
+                "DISPATCH_DEPARTMENT",
+                "BILLING"
               ]
             },
             "UserRole": {
@@ -2561,11 +3254,12 @@
                 "ADMIN",
                 "MANAGER",
                 "SALES",
-                "DESIGNER",
+                "CUTSHEET",
+                "OPTIMISATION",
                 "PURCHASE",
                 "PRODUCTION",
-                "ACCOUNTS",
                 "DISPATCH",
+                "ACCOUNTS",
                 "USER"
               ]
             }
@@ -2575,7 +3269,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6d6f24dcadbc3ef4a0a44ea4132f72d58e235645844bd0133119f2bef288c7fa"
+    "storageHash": "f70635337f9fa84ce0349340adef59b5bad49bf2a1d75db6b75b70086e8787eb"
   },
   "capabilities": {
     "postgres": {

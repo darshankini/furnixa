@@ -1,16 +1,18 @@
-import { ArrowLeft, Mail, Pencil, Phone, Trash2, UserPlus } from 'lucide-react'
+import { ArrowLeft, IndianRupee, Mail, Pencil, Phone, Trash2, UserPlus } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { leadsApi, type LeadDetail } from '../../api/leads'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { useAuth } from '../../context/auth-context'
-import { LEAD_DELETE_ROLES, LEAD_MANAGE_ROLES } from '../../data/roles'
-import { formatDateTime } from '../../utils/format'
+import { LEAD_DELETE_ROLES, PAYMENT_ROLES, canEditLead, isClient } from '../../data/roles'
+import { formatDateTime, formatMoney } from '../../utils/format'
 import { LeadAssignPanel } from './LeadAssignPanel'
 import { LeadChat } from './LeadChat'
 import { LeadDocuments } from './LeadDocuments'
 import { LeadHistory, LeadTeam } from './LeadHistory'
+import { LeadProduction } from './LeadProduction'
+import { LeadRequirement } from './LeadRequirement'
 import { PhaseBadge } from './PhaseBadge'
 
 export function LeadDetailPage() {
@@ -25,12 +27,17 @@ function LeadDetailView({ id }: { id: number }) {
   const location = useLocation()
   const [flash, setFlash] = useState((location.state as { message?: string } | null)?.message ?? '')
 
-  const canManage = !!me && LEAD_MANAGE_ROLES.includes(me.role)
-  const canDelete = !!me && LEAD_DELETE_ROLES.includes(me.role)
-
   const [lead, setLead] = useState<LeadDetail | null>(null)
   const [error, setError] = useState(Number.isInteger(id) && id > 0 ? '' : 'Lead not found.')
   const [assigning, setAssigning] = useState(false)
+
+  // Clients can only read the lead and chat; the backend blocks everything else for them too
+  const client = isClient(me)
+  const leadStatus = lead?.status;
+  const canManage = !!me && !client && canEditLead(me.role, leadStatus);
+  const canDelete = !!me && !client && LEAD_DELETE_ROLES.includes(me.role)
+  // Payments are tracked once there is a quotation amount
+  const canSeePayments = !!me && !client && PAYMENT_ROLES.includes(me.role) && lead?.quotationAmount != null
 
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -81,14 +88,24 @@ function LeadDetailView({ id }: { id: number }) {
               <div className="profile-meta">
                 <span className="text-muted">Lead #{lead.id}</span>
                 <PhaseBadge status={lead.status} />
+                {lead.quotationAmount !== null && (
+                  <span className="quotation-amount">Quotation {formatMoney(lead.quotationAmount)}</span>
+                )}
                 <span className="text-muted">
                   Created {formatDateTime(lead.createdAt)}
                   {lead.createdBy && ` by ${lead.createdBy.firstName} ${lead.createdBy.lastName}`}
                 </span>
               </div>
             </div>
-            {(canManage || canDelete) && (
+            
+            {(canManage || canDelete || canSeePayments) && (
               <div className="profile-actions">
+                {canSeePayments && (
+                  <Link to={`/payments/${lead.id}`} className="btn btn-outline">
+                    <IndianRupee size={16} aria-hidden="true" />
+                    Payments
+                  </Link>
+                )}
                 {canManage && !assigning && (
                   <button type="button" className="btn btn-accent" onClick={() => setAssigning(true)}>
                     <UserPlus size={16} aria-hidden="true" />
@@ -138,9 +155,13 @@ function LeadDetailView({ id }: { id: number }) {
                   <div>
                     <dt>Name</dt>
                     <dd>
-                      <Link to={`/clients/${lead.client.id}`} className="detail-link">
-                        {lead.client.firstName} {lead.client.lastName}
-                      </Link>
+                      {client ? (
+                        `${lead.client.firstName} ${lead.client.lastName}`
+                      ) : (
+                        <Link to={`/clients/${lead.client.id}`} className="detail-link">
+                          {lead.client.firstName} {lead.client.lastName}
+                        </Link>
+                      )}
                     </dd>
                   </div>
                   <div>
@@ -168,8 +189,11 @@ function LeadDetailView({ id }: { id: number }) {
                 </dl>
               </section>
 
+              <LeadRequirement lead={lead} canEdit={canManage} onSaved={setLead} />
+              <LeadProduction lead={lead} canManage={canManage} onSaved={setLead} />
+
               <LeadTeam assignments={lead.assignments} />
-              <LeadDocuments lead={lead} />
+              {!client && <LeadDocuments lead={lead} />}
               <LeadHistory history={lead.history} />
             </div>
 

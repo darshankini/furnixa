@@ -1,27 +1,61 @@
 import type { Scalars } from '@prisma/orm-postgres/family-contract/types';
-import type { PublicUser, UserRole } from '../auth/auth.types.js';
+import type { PublicUser, UserRole, UserType } from '../auth/auth.types.js';
 import type { Models } from '../prisma/contract.js';
+import { GLOBAL_ROLES, isGlobalRole } from '../users/users.types.js';
 
 export type Lead = Scalars<Models.public_Lead>;
 export type LeadStatus = Lead['status'];
 export type Department = Scalars<Models.public_Document>['department'];
 
+/** A numeric(12, 2) column: Prisma reads and writes it as a decimal string such as "100000.00" */
+export type Money = NonNullable<Lead['quotationAmount']>;
+
+/** 100000 → "100000.00", typed for numeric(12, 2) columns (the DTO already limits it to 2 decimals) */
+export function toMoney(value: number): Money {
+  return value.toFixed(2) as Money;
+}
+
 /** Same order as the LeadStatus enum in contract.prisma */
 export const LEAD_STATUSES = [
   'ENQUIRY',
   'QUOTATION',
+  'CUTSHEET',
   'OPTIMISATION',
   'PURCHASE',
   'PRODUCTION',
   'DISPATCH',
-  'INVOICE',
+  'ACCOUNTS',
+  'COMPLETED',
 ] as const satisfies readonly LeadStatus[];
+
+export type ProductionStage = NonNullable<Lead['productionStage']>;
+
+/** Workshop stages inside the Production phase, same order as the ProductionStage enum in contract.prisma */
+export const PRODUCTION_STAGE_LABELS: Record<ProductionStage, string> = {
+  PRESSING_01_8FT: 'Pressing 01 (8 Ft)',
+  PRESSING_02_10FT: 'Pressing 02 (10 Ft)',
+  CUTTING_01: 'Cutting 01',
+  CUTTING_02: 'Cutting 02',
+  EDGE_BENDING_01: 'Edge Bending 01',
+  EDGE_BENDING_02: 'Edge Bending 02',
+  FINISHING: 'Finishing',
+  CUT_OUT_MANUAL: 'Cut Out Manual',
+  CARPENTER: 'Carpenter',
+  ROUTER_AND_HANDLE: 'Router and Handle',
+  DRILLING: 'Drilling',
+  CNC: 'CNC',
+  ASSEMBLY_QC: 'Assembly QC',
+  PACKING: 'Packing',
+  DISPATCH_DEPARTMENT: 'Dispatch Department',
+  BILLING: 'Billing',
+};
+export const PRODUCTION_STAGES = Object.keys(PRODUCTION_STAGE_LABELS) as ProductionStage[];
 
 /** Same order as the Department enum in contract.prisma */
 export const DEPARTMENTS = [
-  'ADMIN',
   'SALES',
-  'DESIGN',
+  'CUTSHEET',
+  'OPTIMISATION',
   'PURCHASE',
   'PRODUCTION',
   'ACCOUNTS',
@@ -30,11 +64,35 @@ export const DEPARTMENTS = [
 
 /** Who may do what with leads (the frontend mirrors these in src/data/roles.ts) */
 export const LEAD_CREATE_ROLES = ['ADMIN', 'SALES'] as const satisfies readonly UserRole[];
-/** Edit details, move the lead to another phase, and assign it to users */
-export const LEAD_MANAGE_ROLES = ['ADMIN', 'SALES'] as const satisfies readonly UserRole[];
+/**
+ * Edit details, move the lead to another phase, and assign it to users.
+ * Each phase is managed by its own department; GLOBAL_ROLES (admin, manager) manage every phase.
+ */
+export const LEAD_MANAGE_ROLES_BY_PHASE: Record<LeadStatus, readonly UserRole[]> = {
+  ENQUIRY: ['SALES'],
+  QUOTATION: ['SALES'],
+  CUTSHEET: ['CUTSHEET'],
+  OPTIMISATION: ['OPTIMISATION'],
+  PURCHASE: ['PURCHASE'],
+  PRODUCTION: ['PRODUCTION'],
+  DISPATCH: ['DISPATCH'],
+  ACCOUNTS: ['ACCOUNTS'],
+  // A completed lead is closed: only GLOBAL_ROLES (admin, manager) can change it
+  COMPLETED: [],
+};
+/** Move a lead into Completed, and only once the quotation amount is fully paid */
+export const LEAD_COMPLETE_ROLES = GLOBAL_ROLES;
+/** Every role that can manage at least one phase: the route-level gate, the phase itself is checked per lead */
+export const LEAD_MANAGE_ROLES: readonly UserRole[] = [
+  ...new Set([...GLOBAL_ROLES, ...Object.values(LEAD_MANAGE_ROLES_BY_PHASE).flat()]),
+];
+
+export function canManagePhase(role: UserRole, phase: LeadStatus): boolean {
+  return isGlobalRole(role) || LEAD_MANAGE_ROLES_BY_PHASE[phase].includes(role);
+}
 export const LEAD_DELETE_ROLES = ['ADMIN'] as const satisfies readonly UserRole[];
 /** These roles see every lead; everyone else only sees leads they created or were ever assigned to */
-export const LEAD_VIEW_ALL_ROLES = ['ADMIN', 'MANAGER'] as const satisfies readonly UserRole[];
+export const LEAD_VIEW_ALL_ROLES = GLOBAL_ROLES;
 /** Close / reopen a lead's chat */
 export const LEAD_CHAT_CLOSE_ROLES = ['ADMIN'] as const satisfies readonly UserRole[];
 
@@ -44,7 +102,8 @@ export const LEAD_CHAT_CLOSE_ROLES = ['ADMIN'] as const satisfies readonly UserR
  */
 export const DEPARTMENT_BY_ROLE: Partial<Record<UserRole, Department>> = {
   SALES: 'SALES',
-  DESIGNER: 'DESIGN',
+  CUTSHEET: 'CUTSHEET',
+  OPTIMISATION: 'OPTIMISATION',
   PURCHASE: 'PURCHASE',
   PRODUCTION: 'PRODUCTION',
   ACCOUNTS: 'ACCOUNTS',
@@ -133,6 +192,15 @@ export interface LeadSummaryDto {
 
 /** One lead with everything the detail page shows (chat and files are loaded separately) */
 export interface LeadDetailDto extends LeadSummaryDto {
+  requirement: string | null;
+  /** Decimal as a string, e.g. "100000.00"; null until the lead reaches Quotation (always null for clients) */
+  quotationAmount: string | null;
+  /** Payments add up to the quotation amount, so admins and managers may complete the lead */
+  isFullyPaid: boolean;
+  /** null until someone in Production picks a stage */
+  productionStage: ProductionStage | null;
+  productionStageUpdatedAt: string | null;
+  productionStageUpdatedBy: UserRefDto | null;
   assignedBy: UserRefDto | null;
   lastUpdatedBy: UserRefDto | null;
   chatClosedAt: string | null;
@@ -143,9 +211,14 @@ export interface LeadDetailDto extends LeadSummaryDto {
   history: LeadHistoryDto[];
 }
 
+/** ChatMessage.userType values: which table the sender is in (staff user → userId, client → clientId) */
+export const CHAT_SENDER_TYPE = { user: 1, client: 2 } as const satisfies Record<UserType, number>;
+
 export interface ChatMessageDto {
   id: number;
   message: string;
+  /** Who sent it: a staff user, or the lead's client (role is then always CLIENT_ROLE) */
+  senderType: UserType;
   user: UserRefDto;
   createdAt: string;
 }

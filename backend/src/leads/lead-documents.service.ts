@@ -126,7 +126,7 @@ export class LeadDocumentsService {
 
   /** Department users always upload into their own folder; admins/managers pick one (default ADMIN) */
   private departmentFor(user: PublicUser, requested: Department | undefined): Department {
-    if (hasRole(user, PICK_DEPARTMENT_ROLES)) return requested ?? 'ADMIN';
+    if (hasRole(user, PICK_DEPARTMENT_ROLES)) return requested ?? 'SALES';
 
     const own = DEPARTMENT_BY_ROLE[user.role];
     if (!own) throw new ForbiddenException('Your role does not have a department folder to upload into.');

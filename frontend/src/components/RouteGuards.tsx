@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { UserRole } from '../api/auth'
 import { useAuth } from '../context/auth-context'
+import { isClient } from '../data/roles'
 
 /** Only signed-in users can see these routes */
 export function ProtectedRoute() {
@@ -24,6 +25,14 @@ export function RequireRole({ roles }: { roles: UserRole[] }) {
       </div>
     )
   }
+  return <Outlet />
+}
+
+/** Staff-only pages: clients are sent to their leads (use inside ProtectedRoute) */
+export function StaffOnly() {
+  const { user } = useAuth()
+
+  if (isClient(user)) return <Navigate to="/leads" replace />
   return <Outlet />
 }
 

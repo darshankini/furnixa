@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.Lead.requirement",
+    "label": "Add column \"requirement\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "requirement",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"requirement\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "requirement"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"requirement\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"requirement\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"requirement\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "requirement"
+        ]
+      }
+    ]
+  }
+]

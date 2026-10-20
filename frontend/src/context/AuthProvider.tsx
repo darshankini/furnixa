@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { authApi, type User } from '../api/auth'
+import { authApi, type LoginType, type User } from '../api/auth'
 import { AuthContext } from './auth-context'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -15,8 +15,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await authApi.login(email, password)
+  const login = useCallback(async (email: string, password: string, loginType: LoginType) => {
+    const res = await authApi.login(email, password, loginType)
     setUser(res.user)
   }, [])
 

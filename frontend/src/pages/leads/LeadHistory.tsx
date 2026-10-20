@@ -28,6 +28,7 @@ export function LeadTeam({ assignments }: { assignments: LeadAssignment[] }) {
               <h3 className="team-subtitle">Previously assigned</h3>
               <ul className="team-list previous">
                 {previous.map((a) => (
+                  
                   <TeamMember key={a.user.id} assignment={a} />
                 ))}
               </ul>
@@ -40,6 +41,7 @@ export function LeadTeam({ assignments }: { assignments: LeadAssignment[] }) {
 }
 
 function TeamMember({ assignment: a }: { assignment: LeadAssignment }) {
+  console.log(ROLE_BY_VALUE[a.user.role]);
   return (
     <li className="team-member">
       <span className="person-avatar" aria-hidden="true">{initialsOf(a.user.firstName, a.user.lastName)}</span>

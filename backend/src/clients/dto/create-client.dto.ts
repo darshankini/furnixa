@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
+import { IsEmail, IsNotEmpty, isString, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
 import { emailOrNull, hasValue, PHONE_MESSAGE, PHONE_PATTERN, trim, trimOrNull } from './client-validation.js';
 
 export class CreateClientDto {
@@ -30,6 +30,32 @@ export class CreateClientDto {
   @ValidateIf(hasValue)
   @IsEmail({}, { message: 'Please enter a valid email address.' })
   email?: string | null;
+
+  @Transform(trim)
+  @IsNotEmpty({ message : 'Password is required. '})
+  @ValidateIf(hasValue)
+  @IsString()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9\s])\S{8,}$/,
+    {
+      message:
+        'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one special character.',
+    },
+  )
+  password: string;
+
+  @Transform(trim)
+  @IsNotEmpty({ message : 'Confirm password is required. '})
+  @ValidateIf(hasValue)
+  @IsString()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9\s])\S{8,}$/,
+    {
+      message:
+        'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one special character.',
+    },
+  )
+  confirmPassword: string;
 
   @Transform(trimOrNull)
   @ValidateIf(hasValue)

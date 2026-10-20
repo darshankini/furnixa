@@ -35,6 +35,30 @@ export class UpdateClientDto {
   @IsEmail({}, { message: 'Please enter a valid email address.' })
   email?: string | null;
 
+  @Transform(trim)
+  @ValidateIf(hasValue)
+  @IsString()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9\s])\S{8,}$/,
+    {
+      message:
+        'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one special character.',
+    },
+  )
+  password?: string;
+
+  @Transform(trim)
+  @ValidateIf(hasValue)
+  @IsString()
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9\s])\S{8,}$/,
+    {
+      message:
+        'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one special character.',
+    },
+  )
+  confirmPassword?: string;
+
   @Transform(trimOrNull)
   @ValidateIf(hasValue)
   @MaxLength(500, { message: 'Address must be 500 characters or fewer.' })

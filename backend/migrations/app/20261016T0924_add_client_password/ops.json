@@ -1,0 +1,548 @@
+[
+  {
+    "id": "dropCheckConstraint.Document.Document_department_check_1c4f5751",
+    "label": "Drop check constraint \"Document_department_check_1c4f5751\" on \"Document\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Document_department_check_1c4f5751",
+        "table": "Document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Document_department_check_1c4f5751\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_department_check_1c4f5751",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"Document_department_check_1c4f5751\"",
+        "sql": "ALTER TABLE \"public\".\"Document\" DROP CONSTRAINT \"Document_department_check_1c4f5751\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Document_department_check_1c4f5751\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_department_check_1c4f5751",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.Document.Document_status_check_78e33087",
+    "label": "Drop check constraint \"Document_status_check_78e33087\" on \"Document\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Document_status_check_78e33087",
+        "table": "Document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Document_status_check_78e33087\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_status_check_78e33087",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"Document_status_check_78e33087\"",
+        "sql": "ALTER TABLE \"public\".\"Document\" DROP CONSTRAINT \"Document_status_check_78e33087\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Document_status_check_78e33087\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_status_check_78e33087",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.Lead.Lead_status_check_78e33087",
+    "label": "Drop check constraint \"Lead_status_check_78e33087\" on \"Lead\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Lead_status_check_78e33087",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Lead_status_check_78e33087\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_status_check_78e33087",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"Lead_status_check_78e33087\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" DROP CONSTRAINT \"Lead_status_check_78e33087\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Lead_status_check_78e33087\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_status_check_78e33087",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.LeadStatusHistory.LeadStatusHistory_fromStatus_check_7ac22622",
+    "label": "Drop check constraint \"LeadStatusHistory_fromStatus_check_7ac22622\" on \"LeadStatusHistory\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LeadStatusHistory_fromStatus_check_7ac22622",
+        "table": "LeadStatusHistory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LeadStatusHistory_fromStatus_check_7ac22622\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_fromStatus_check_7ac22622",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"LeadStatusHistory_fromStatus_check_7ac22622\"",
+        "sql": "ALTER TABLE \"public\".\"LeadStatusHistory\" DROP CONSTRAINT \"LeadStatusHistory_fromStatus_check_7ac22622\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LeadStatusHistory_fromStatus_check_7ac22622\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_fromStatus_check_7ac22622",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.LeadStatusHistory.LeadStatusHistory_toStatus_check_22392df3",
+    "label": "Drop check constraint \"LeadStatusHistory_toStatus_check_22392df3\" on \"LeadStatusHistory\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LeadStatusHistory_toStatus_check_22392df3",
+        "table": "LeadStatusHistory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LeadStatusHistory_toStatus_check_22392df3\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_toStatus_check_22392df3",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"LeadStatusHistory_toStatus_check_22392df3\"",
+        "sql": "ALTER TABLE \"public\".\"LeadStatusHistory\" DROP CONSTRAINT \"LeadStatusHistory_toStatus_check_22392df3\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LeadStatusHistory_toStatus_check_22392df3\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_toStatus_check_22392df3",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.User.User_role_check_b6eade79",
+    "label": "Drop check constraint \"User_role_check_b6eade79\" on \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "User_role_check_b6eade79",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_role_check_b6eade79\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_role_check_b6eade79",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"User_role_check_b6eade79\"",
+        "sql": "ALTER TABLE \"public\".\"User\" DROP CONSTRAINT \"User_role_check_b6eade79\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_role_check_b6eade79\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_role_check_b6eade79",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Client.passwordHash",
+    "label": "Add column \"passwordHash\" to \"Client\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "passwordHash",
+        "table": "Client"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"passwordHash\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Client",
+          "passwordHash"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"passwordHash\"",
+        "sql": "ALTER TABLE \"public\".\"Client\" ADD COLUMN \"passwordHash\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"passwordHash\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Client",
+          "passwordHash"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Document.Document_department_check_602d6925",
+    "label": "Add check constraint \"Document_department_check_602d6925\" on \"Document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Document_department_check_602d6925",
+        "table": "Document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Document_department_check_602d6925\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_department_check_602d6925",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Document_department_check_602d6925\"",
+        "sql": "ALTER TABLE \"public\".\"Document\" ADD CONSTRAINT \"Document_department_check_602d6925\" CHECK (\"department\" IN ('SALES', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'ACCOUNTS', 'DISPATCH'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Document_department_check_602d6925\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_department_check_602d6925",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Document.Document_status_check_1d1d9eee",
+    "label": "Add check constraint \"Document_status_check_1d1d9eee\" on \"Document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Document_status_check_1d1d9eee",
+        "table": "Document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Document_status_check_1d1d9eee\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_status_check_1d1d9eee",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Document_status_check_1d1d9eee\"",
+        "sql": "ALTER TABLE \"public\".\"Document\" ADD CONSTRAINT \"Document_status_check_1d1d9eee\" CHECK (\"status\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Document_status_check_1d1d9eee\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Document_status_check_1d1d9eee",
+          "public",
+          "\"public\".\"Document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Lead.Lead_status_check_1d1d9eee",
+    "label": "Add check constraint \"Lead_status_check_1d1d9eee\" on \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Lead_status_check_1d1d9eee",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Lead_status_check_1d1d9eee\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_status_check_1d1d9eee",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Lead_status_check_1d1d9eee\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD CONSTRAINT \"Lead_status_check_1d1d9eee\" CHECK (\"status\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Lead_status_check_1d1d9eee\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_status_check_1d1d9eee",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.LeadStatusHistory.LeadStatusHistory_fromStatus_check_270765ff",
+    "label": "Add check constraint \"LeadStatusHistory_fromStatus_check_270765ff\" on \"LeadStatusHistory\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LeadStatusHistory_fromStatus_check_270765ff",
+        "table": "LeadStatusHistory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LeadStatusHistory_fromStatus_check_270765ff\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_fromStatus_check_270765ff",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"LeadStatusHistory_fromStatus_check_270765ff\"",
+        "sql": "ALTER TABLE \"public\".\"LeadStatusHistory\" ADD CONSTRAINT \"LeadStatusHistory_fromStatus_check_270765ff\" CHECK (\"fromStatus\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LeadStatusHistory_fromStatus_check_270765ff\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_fromStatus_check_270765ff",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.LeadStatusHistory.LeadStatusHistory_toStatus_check_689ba99c",
+    "label": "Add check constraint \"LeadStatusHistory_toStatus_check_689ba99c\" on \"LeadStatusHistory\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "LeadStatusHistory_toStatus_check_689ba99c",
+        "table": "LeadStatusHistory"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"LeadStatusHistory_toStatus_check_689ba99c\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_toStatus_check_689ba99c",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"LeadStatusHistory_toStatus_check_689ba99c\"",
+        "sql": "ALTER TABLE \"public\".\"LeadStatusHistory\" ADD CONSTRAINT \"LeadStatusHistory_toStatus_check_689ba99c\" CHECK (\"toStatus\" IN ('ENQUIRY', 'QUOTATION', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"LeadStatusHistory_toStatus_check_689ba99c\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "LeadStatusHistory_toStatus_check_689ba99c",
+          "public",
+          "\"public\".\"LeadStatusHistory\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.User.User_role_check_e190c4b5",
+    "label": "Add check constraint \"User_role_check_e190c4b5\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "User_role_check_e190c4b5",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_role_check_e190c4b5\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_role_check_e190c4b5",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"User_role_check_e190c4b5\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_role_check_e190c4b5\" CHECK (\"role\" IN ('ADMIN', 'MANAGER', 'SALES', 'CUTSHEET', 'OPTIMISATION', 'PURCHASE', 'PRODUCTION', 'DISPATCH', 'ACCOUNTS', 'USER'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"User_role_check_e190c4b5\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_role_check_e190c4b5",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  }
+]

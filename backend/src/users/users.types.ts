@@ -7,13 +7,22 @@ export const USER_ROLES = [
   'ADMIN',
   'MANAGER',
   'SALES',
-  'DESIGNER',
+  'CUTSHEET',
+  'OPTIMISATION',
   'PURCHASE',
   'PRODUCTION',
-  'ACCOUNTS',
   'DISPATCH',
+  'ACCOUNTS',
   'USER',
 ] as const satisfies readonly UserRole[];
+
+/** Roles that are not tied to a single phase: they can access every phase of a lead */
+export const GLOBAL_ROLES = ['ADMIN', 'MANAGER'] as const satisfies readonly UserRole[];
+export type GlobalRole = (typeof GLOBAL_ROLES)[number];
+
+export function isGlobalRole(role: UserRole): role is GlobalRole {
+  return (GLOBAL_ROLES as readonly UserRole[]).includes(role);
+}
 
 /** User as returned by the API: everything except passwordHash, dates as ISO strings */
 export interface UserDto {

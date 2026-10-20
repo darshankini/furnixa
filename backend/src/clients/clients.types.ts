@@ -16,6 +16,7 @@ export interface ClientDto {
   mobile: string;
   alternateMobile: string | null;
   email: string | null;
+  passwordHash: string | null;
   address: string | null;
   leadCount: number;
   createdAt: string;
@@ -30,6 +31,7 @@ export function toClientDto(client: Client & { leads: number }): ClientDto {
     mobile: client.mobile,
     alternateMobile: client.alternateMobile,
     email: client.email,
+    passwordHash : client.passwordHash,
     address: client.address,
     leadCount: client.leads,
     createdAt: client.createdAt.toString(),

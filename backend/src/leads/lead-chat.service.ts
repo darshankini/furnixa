@@ -1,15 +1,16 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import type { PublicUser } from '../auth/auth.types.js';
+import { CLIENT_ROLE, type PublicUser } from '../auth/auth.types.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { LeadAccessService } from './lead-access.service.js';
-import { iso, must, toUserRef, USER_REF_FIELDS, type ChatMessageDto, type UserRefDto } from './leads.types.js';
+import { CHAT_SENDER_TYPE, iso, must, toUserRef, USER_REF_FIELDS, type ChatMessageDto, type UserRefDto } from './leads.types.js';
 
 /** How many messages the first load returns; later polls only fetch messages after the last one seen */
 const PAGE_SIZE = 200;
 
 /**
  * Lead chat: everyone who can see the lead (admins, managers, the creator, and current *and*
- * previous assignees) can read and write. Once an admin closes the chat it becomes read-only.
+ * previous assignees) can read and write, and so can the lead's own client.
+ * Once an admin closes the chat it becomes read-only for everyone, clients included.
  */
 @Injectable()
 export class LeadChatService {
@@ -22,9 +23,9 @@ export class LeadChatService {
   async list(leadId: number, user: PublicUser, afterId?: number): Promise<ChatMessageDto[]> {
     await this.access.getViewable(leadId, user);
 
-    let messages = this.prisma.orm.public.ChatMessage.where({ leadId }).include('user', (u) =>
-      u.select(...USER_REF_FIELDS),
-    );
+    let messages = this.prisma.orm.public.ChatMessage.where({ leadId })
+      .include('user', (u) => u.select(...USER_REF_FIELDS))
+      .include('client', (c) => c.select(...CLIENT_SENDER_FIELDS));
     if (afterId !== undefined) messages = messages.where((m) => m.id.gt(afterId));
 
     // Newest PAGE_SIZE messages, returned oldest first
@@ -36,14 +37,18 @@ export class LeadChatService {
     const lead = await this.access.getViewable(leadId, user);
     if (lead.chatClosed) throw new ForbiddenException('This chat has been closed by an admin.');
 
+    // userType records which table the sender is in, and their id goes in that table's column,
+    // so a client id is never stored as a user id
     const created = await this.prisma.orm.public.ChatMessage.select('id').create({
       leadId,
-      userId: user.id,
+      userType: CHAT_SENDER_TYPE[user.userType],
+      ...(user.userType === 'client' ? { clientId: user.id } : { userId: user.id }),
       message: text,
     });
 
     const message = await this.prisma.orm.public.ChatMessage.where({ id: created.id })
       .include('user', (u) => u.select(...USER_REF_FIELDS))
+      .include('client', (c) => c.select(...CLIENT_SENDER_FIELDS))
       .first();
     return toMessageDto(message!);
   }
@@ -69,11 +74,20 @@ export class LeadChatService {
   }
 }
 
+const CLIENT_SENDER_FIELDS = ['id', 'firstName', 'lastName'] as const;
+
+/** userType decides whose details are the sender: the Client row (2) or the User row (1) */
 function toMessageDto(m: {
   id: number;
   message: string;
+  userType: number;
   createdAt: { toString(): string };
   user: UserRefDto | null;
+  client: { id: number; firstName: string; lastName: string } | null;
 }): ChatMessageDto {
-  return { id: m.id, message: m.message, user: toUserRef(must(m.user)), createdAt: iso(m.createdAt) };
+  const base = { id: m.id, message: m.message, createdAt: iso(m.createdAt) };
+  if (m.userType === CHAT_SENDER_TYPE.client) {
+    return { ...base, senderType: 'client', user: { ...must(m.client), role: CLIENT_ROLE } };
+  }
+  return { ...base, senderType: 'user', user: toUserRef(must(m.user)) };
 }

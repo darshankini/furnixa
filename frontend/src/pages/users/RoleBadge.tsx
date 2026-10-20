@@ -2,6 +2,7 @@ import type { UserRole } from '../../api/auth'
 import { ROLE_BY_VALUE } from '../../data/roles'
 
 export function RoleBadge({ role }: { role: UserRole }) {
+  console.log(role);
   const r = ROLE_BY_VALUE[role]
   return (
     <span className="badge" style={{ background: r.badgeBg, color: r.badgeText }}>

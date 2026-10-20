@@ -1,0 +1,251 @@
+[
+  {
+    "id": "column.public.Lead.productionStage",
+    "label": "Add column \"productionStage\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "productionStage",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"productionStage\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStage"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"productionStage\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"productionStage\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"productionStage\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStage"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Lead.productionStageUpdatedAt",
+    "label": "Add column \"productionStageUpdatedAt\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "productionStageUpdatedAt",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"productionStageUpdatedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStageUpdatedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"productionStageUpdatedAt\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"productionStageUpdatedAt\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"productionStageUpdatedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStageUpdatedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Lead.productionStageUpdatedById",
+    "label": "Add column \"productionStageUpdatedById\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "productionStageUpdatedById",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"productionStageUpdatedById\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStageUpdatedById"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"productionStageUpdatedById\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"productionStageUpdatedById\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"productionStageUpdatedById\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "productionStageUpdatedById"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Lead.Lead_productionStage_check_388366db",
+    "label": "Add check constraint \"Lead_productionStage_check_388366db\" on \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Lead_productionStage_check_388366db",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Lead_productionStage_check_388366db\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_productionStage_check_388366db",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Lead_productionStage_check_388366db\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD CONSTRAINT \"Lead_productionStage_check_388366db\" CHECK (\"productionStage\" IN ('PRESSING_01_8FT', 'PRESSING_02_10FT', 'CUTTING_01', 'CUTTING_02', 'EDGE_BENDING_01', 'EDGE_BENDING_02', 'FINISHING', 'CUT_OUT_MANUAL', 'CARPENTER', 'ROUTER_AND_HANDLE', 'DRILLING', 'CNC', 'ASSEMBLY_QC', 'PACKING', 'DISPATCH_DEPARTMENT', 'BILLING'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Lead_productionStage_check_388366db\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_productionStage_check_388366db",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Lead.Lead_productionStageUpdatedById_idx_c7ffc0b1",
+    "label": "Create index \"Lead_productionStageUpdatedById_idx_c7ffc0b1\" on \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Lead_productionStageUpdatedById_idx_c7ffc0b1",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Lead_productionStageUpdatedById_idx_c7ffc0b1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Lead_productionStageUpdatedById_idx_c7ffc0b1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Lead_productionStageUpdatedById_idx_c7ffc0b1\"",
+        "sql": "CREATE INDEX \"Lead_productionStageUpdatedById_idx_c7ffc0b1\" ON \"public\".\"Lead\" (\"productionStageUpdatedById\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Lead_productionStageUpdatedById_idx_c7ffc0b1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Lead_productionStageUpdatedById_idx_c7ffc0b1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Lead.Lead_productionStageUpdatedById_fkey",
+    "label": "Add foreign key \"Lead_productionStageUpdatedById_fkey\" on \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Lead_productionStageUpdatedById_fkey",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Lead_productionStageUpdatedById_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_productionStageUpdatedById_fkey",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Lead_productionStageUpdatedById_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\"\nADD CONSTRAINT \"Lead_productionStageUpdatedById_fkey\"\nFOREIGN KEY (\"productionStageUpdatedById\")\nREFERENCES \"public\".\"User\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Lead_productionStageUpdatedById_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lead_productionStageUpdatedById_fkey",
+          "public",
+          "\"public\".\"Lead\""
+        ]
+      }
+    ]
+  }
+]

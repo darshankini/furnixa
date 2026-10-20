@@ -1,9 +1,9 @@
-import { Armchair, ClipboardList, LayoutDashboard, LogOut, UserCog, Users, X, type LucideIcon } from 'lucide-react'
+import { Armchair, ClipboardList, IndianRupee, LayoutDashboard, LogOut, UserCog, Users, X, type LucideIcon } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../api/auth'
 import { useAuth } from '../../context/auth-context'
 import { PHASES } from '../../data/phases'
-import { USER_VIEW_ROLES } from '../../data/roles'
+import { isClient, PAYMENT_ROLES, USER_VIEW_ROLES } from '../../data/roles'
 
 interface NavItem {
   to: string
@@ -16,6 +16,13 @@ interface NavItem {
 const MAIN_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/leads', label: 'All Leads', icon: ClipboardList },
+  { to: '/payments', label: 'Payment Follow-up', icon: IndianRupee, roles: PAYMENT_ROLES },
+]
+
+/** Clients only see their own leads */
+const CLIENT_ITEMS: NavItem[] = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/leads', label: 'My Leads', icon: ClipboardList },
 ]
 
 const MASTER_ITEMS: NavItem[] = [
@@ -24,7 +31,6 @@ const MASTER_ITEMS: NavItem[] = [
 ]
 
 const PHASE_ITEMS: NavItem[] = PHASES.map((p) => ({ to: `/phases/${p.slug}`, label: p.label, icon: p.icon }))
-
 interface Props {
   open: boolean
   onClose: () => void
@@ -48,6 +54,7 @@ export function Sidebar({ open, onClose }: Props) {
 
   function renderItems(items: NavItem[]) {
     const visible = items.filter((item) => !item.roles || (user && item.roles.includes(user.role)))
+    
     return visible.map(({ to, label, icon: Icon }) => (
       <NavLink
         key={to}
@@ -77,13 +84,19 @@ export function Sidebar({ open, onClose }: Props) {
       </div>
 
       <nav className="sidebar-nav">
-        {renderItems(MAIN_ITEMS)}
+        {isClient(user) ? (
+          renderItems(CLIENT_ITEMS)
+        ) : (
+          <>
+            {renderItems(MAIN_ITEMS)}
 
-        <div className="nav-section">Masters</div>
-        {renderItems(MASTER_ITEMS)}
+            <div className="nav-section">Masters</div>
+            {renderItems(MASTER_ITEMS)}
 
-        <div className="nav-section">Phases</div>
-        {renderItems(PHASE_ITEMS)}
+            <div className="nav-section">Phases</div>
+            {renderItems(PHASE_ITEMS)}
+          </>
+        )}
       </nav>
 
       <div className="sidebar-footer">
@@ -91,7 +104,7 @@ export function Sidebar({ open, onClose }: Props) {
           <div className="avatar" aria-hidden="true">{initials}</div>
           <div className="sidebar-user-text">
             <strong>{fullName}</strong>
-            <span>{user ? formatRole(user.role) : ''}</span>
+            <span>{isClient(user) ? 'Client' : user ? formatRole(user.role) : ''}</span>
           </div>
         </div>
         <button type="button" className="sign-out" onClick={handleLogout}>

@@ -1,8 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { toClientDto, type ClientDto } from './clients.types.js';
 import type { CreateClientDto } from './dto/create-client.dto.js';
 import type { UpdateClientDto } from './dto/update-client.dto.js';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class ClientsService {
@@ -27,6 +28,8 @@ export class ClientsService {
   }
 
   async create(dto: CreateClientDto): Promise<ClientDto> {
+    if(dto.password !== dto.confirmPassword) throw new BadRequestException('Password do not match');
+    const passwordHash = await bcrypt.hash(dto.password, 12);
     const created = await this.prisma.orm.public.Client.select('id').create({
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -34,13 +37,16 @@ export class ClientsService {
       alternateMobile: dto.alternateMobile ?? null,
       email: dto.email ?? null,
       address: dto.address ?? null,
+      passwordHash: passwordHash ?? null
     });
     return this.findOne(created.id);
   }
 
   async update(id: number, dto: UpdateClientDto): Promise<ClientDto> {
+    if(dto.password !== dto.confirmPassword) throw new BadRequestException('Password do not match');
     const existing = await this.prisma.orm.public.Client.select('id').where({ id }).first();
     if (!existing) throw new NotFoundException('Client not found.');
+
 
     await this.prisma.orm.public.Client.where({ id }).update({
       ...(dto.firstName !== undefined && { firstName: dto.firstName }),
@@ -48,6 +54,7 @@ export class ClientsService {
       ...(dto.mobile !== undefined && { mobile: dto.mobile }),
       ...(dto.alternateMobile !== undefined && { alternateMobile: dto.alternateMobile }),
       ...(dto.email !== undefined && { email: dto.email }),
+      ...(dto.password !== undefined) && { passwordHash : await bcrypt.hash(dto.password, 12)},
       ...(dto.address !== undefined && { address: dto.address }),
       updatedAt: Temporal.Now.instant(),
     });

@@ -7,6 +7,8 @@ export interface ClientFormValues {
   alternateMobile: string
   email: string
   address: string
+  password: string
+  confirmPassword: string
 }
 
 export const EMPTY_CLIENT_FORM: ClientFormValues = {
@@ -16,6 +18,8 @@ export const EMPTY_CLIENT_FORM: ClientFormValues = {
   alternateMobile: '',
   email: '',
   address: '',
+  password: '',
+  confirmPassword : ''
 }
 
 export function clientToFormValues(client: ClientRecord): ClientFormValues {
@@ -26,6 +30,8 @@ export function clientToFormValues(client: ClientRecord): ClientFormValues {
     alternateMobile: client.alternateMobile ?? '',
     email: client.email ?? '',
     address: client.address ?? '',
+    password: client.password ?? '',
+    confirmPassword: client.password ?? ''
   }
 }
 
@@ -38,5 +44,7 @@ export function formValuesToInput(v: ClientFormValues): ClientInput {
     alternateMobile: v.alternateMobile.trim() || null,
     email: v.email.trim() || null,
     address: v.address.trim() || null,
+    password: v.password.trim() || null,
+    confirmPassword: v.confirmPassword.trim() || null
   }
 }

@@ -12,6 +12,7 @@ export function LeadCreatePage() {
     const { lead } = await leadsApi.create({
       clientId: Number(values.clientId),
       projectName: values.projectName.trim(),
+      requirement: values.requirement.trim() || null,
       assigneeIds: values.assigneeIds,
     })
     navigate(`/leads/${lead.id}`, { state: { message: `Lead #${lead.id} was created.` } })
@@ -30,7 +31,7 @@ export function LeadCreatePage() {
 
       <LeadForm
         mode="create"
-        initialValues={{ clientId: params.get('clientId') ?? '', projectName: '', assigneeIds: [] }}
+        initialValues={{ clientId: params.get('clientId') ?? '', projectName: '', requirement: '', assigneeIds: [] }}
         cancelTo="/leads"
         onSubmit={handleSubmit}
       />

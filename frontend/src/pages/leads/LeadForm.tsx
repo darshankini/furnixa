@@ -10,10 +10,11 @@ import { UserPicker } from './UserPicker'
 export interface LeadFormValues {
   clientId: string
   projectName: string
+  requirement: string
   assigneeIds: number[]
 }
 
-type FieldErrors = Partial<Record<'clientId' | 'projectName', string>>
+type FieldErrors = Partial<Record<'clientId' | 'projectName' | 'requirement', string>>
 
 interface Props {
   mode: 'create' | 'edit'
@@ -22,12 +23,15 @@ interface Props {
   onSubmit: (values: LeadFormValues) => Promise<void>
 }
 
+export const REQUIREMENT_MAX = 2000
+
 /** Same rules as the backend CreateLeadDto / UpdateLeadDto */
 function validate(v: LeadFormValues): FieldErrors {
   const e: FieldErrors = {}
   if (!v.clientId) e.clientId = 'Please select a client.'
   if (!v.projectName.trim()) e.projectName = 'Project name is required.'
   else if (v.projectName.trim().length > 150) e.projectName = 'Project name must be 150 characters or fewer.'
+  if (v.requirement.trim().length > REQUIREMENT_MAX) e.requirement = `Requirement must be ${REQUIREMENT_MAX} characters or fewer.`
   return e
 }
 
@@ -140,6 +144,27 @@ export function LeadForm({ mode, initialValues, cancelTo, onSubmit }: Props) {
           {errors.projectName && <p id="projectName-error" className="field-error">{errors.projectName}</p>}
         </div>
 
+        {/* On the edit page the requirement is edited in its own panel on the lead page */}
+        {mode === 'create' && (
+          <div className="form-field span-2">
+            <label htmlFor="requirement">Lead requirement <span className="section-note">(optional)</span></label>
+            <textarea
+              id="requirement"
+              rows={5}
+              value={values.requirement}
+              onChange={(e) => {
+                setValues((prev) => ({ ...prev, requirement: e.target.value }))
+                setErrors((prev) => ({ ...prev, requirement: undefined }))
+              }}
+              aria-invalid={errors.requirement ? true : undefined}
+              aria-describedby={errors.requirement ? 'requirement-error' : undefined}
+              disabled={submitting}
+              placeholder={'e.g.\n32 x 34 – 20 tables\n21 x 20 – 10 chairs'}
+            />
+            {errors.requirement && <p id="requirement-error" className="field-error">{errors.requirement}</p>}
+          </div>
+        )}
+        
         {mode === 'create' && (
           <>
             <h2 className="form-section-title">

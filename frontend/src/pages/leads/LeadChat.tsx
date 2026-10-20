@@ -122,7 +122,7 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
           <div className="state-box">No messages yet. Everyone on this lead, now or before, can chat here.</div>
         ) : (
           messages.map((m) => {
-            const mine = m.user.id === me?.id
+            const mine = m.senderType === me?.userType && m.user.id === me?.id
             return (
               <div key={m.id} className={`chat-message${mine ? ' mine' : ''}`}>
                 {!mine && <span className="person-avatar small" aria-hidden="true">{initialsOf(m.user.firstName, m.user.lastName)}</span>}
@@ -130,7 +130,7 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
                   {!mine && (
                     <span className="chat-author">
                       {m.user.firstName} {m.user.lastName}
-                      <span className="text-muted"> · {ROLE_BY_VALUE[m.user.role].label}</span>
+                      <span className="text-muted"> · {m.senderType === 'client' ? 'Client' : ROLE_BY_VALUE[m.user.role].label}</span>
                     </span>
                   )}
                   <p>{m.message}</p>

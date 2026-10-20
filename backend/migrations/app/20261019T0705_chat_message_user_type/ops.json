@@ -1,0 +1,130 @@
+[
+  {
+    "id": "column.public.ChatMessage.userType",
+    "label": "Add column \"userType\" to \"ChatMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "userType",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"userType\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "userType"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"userType\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ADD COLUMN \"userType\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"userType\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "userType"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data_migration.backfill-ChatMessage-userType",
+    "label": "Data transform: backfill-ChatMessage-userType",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "Check backfill-ChatMessage-userType has work to do",
+        "sql": "SELECT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"ChatMessage\" WHERE \"userType\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "Run backfill-ChatMessage-userType",
+        "sql": "UPDATE \"public\".\"ChatMessage\" SET \"userType\" = $1 WHERE (\"userType\" IS NULL AND \"clientId\" IS NOT NULL)",
+        "params": [
+          2
+        ]
+      },
+      {
+        "description": "Run backfill-ChatMessage-userType",
+        "sql": "UPDATE \"public\".\"ChatMessage\" SET \"userType\" = $1 WHERE \"userType\" IS NULL",
+        "params": [
+          1
+        ]
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify backfill-ChatMessage-userType resolved all violations",
+        "sql": "SELECT NOT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"ChatMessage\" WHERE \"userType\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.ChatMessage.userType",
+    "label": "Set NOT NULL on \"ChatMessage\".\"userType\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "userType",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"userType\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "userType"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"userType\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"ChatMessage\" WHERE \"userType\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"userType\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ALTER COLUMN \"userType\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"userType\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "userType",
+          "NO"
+        ]
+      }
+    ]
+  }
+]

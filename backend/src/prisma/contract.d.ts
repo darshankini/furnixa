@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6d6f24dcadbc3ef4a0a44ea4132f72d58e235645844bd0133119f2bef288c7fa'>;
+  StorageHashBase<'f70635337f9fa84ce0349340adef59b5bad49bf2a1d75db6b75b70086e8787eb'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -250,12 +250,14 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 export type FieldOutputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly clientId: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly leadId: CodecTypes['pg/int4@1']['output'];
       readonly message: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly userType: CodecTypes['pg/int4@1']['output'];
     };
     readonly Client: {
       readonly address: CodecTypes['pg/text@1']['output'] | null;
@@ -266,12 +268,13 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly lastName: CodecTypes['pg/text@1']['output'];
       readonly mobile: CodecTypes['pg/text@1']['output'];
+      readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly Document: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly department:
-        'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
+        'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
       readonly extension: CodecTypes['pg/text@1']['output'] | null;
       readonly fileName: CodecTypes['pg/text@1']['output'];
       readonly filePath: CodecTypes['pg/text@1']['output'];
@@ -283,11 +286,13 @@ export type FieldOutputTypes = {
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly uploadedById: CodecTypes['pg/int4@1']['output'];
     };
     readonly Lead: {
@@ -300,15 +305,39 @@ export type FieldOutputTypes = {
       readonly createdById: CodecTypes['pg/int4@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly lastUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+      readonly productionStage:
+        | 'PRESSING_01_8FT'
+        | 'PRESSING_02_10FT'
+        | 'CUTTING_01'
+        | 'CUTTING_02'
+        | 'EDGE_BENDING_01'
+        | 'EDGE_BENDING_02'
+        | 'FINISHING'
+        | 'CUT_OUT_MANUAL'
+        | 'CARPENTER'
+        | 'ROUTER_AND_HANDLE'
+        | 'DRILLING'
+        | 'CNC'
+        | 'ASSEMBLY_QC'
+        | 'PACKING'
+        | 'DISPATCH_DEPARTMENT'
+        | 'BILLING'
+        | null;
+      readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly projectName: CodecTypes['pg/text@1']['output'];
+      readonly quotationAmount: Numeric<12, 2> | null;
+      readonly requirement: CodecTypes['pg/text@1']['output'] | null;
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly LeadStatusHistory: {
@@ -319,11 +348,13 @@ export type FieldOutputTypes = {
       readonly fromStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE'
+        | 'ACCOUNTS'
+        | 'COMPLETED'
         | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly leadId: CodecTypes['pg/int4@1']['output'];
@@ -331,11 +362,13 @@ export type FieldOutputTypes = {
       readonly toStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
     };
     readonly LeadUser: {
       readonly assignedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -345,6 +378,16 @@ export type FieldOutputTypes = {
       readonly role: 'PRIMARY' | 'COLLABORATOR';
       readonly unassignedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly userId: CodecTypes['pg/int4@1']['output'];
+    };
+    readonly Payment: {
+      readonly amount: Numeric<12, 2>;
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly createdById: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly leadId: CodecTypes['pg/int4@1']['output'];
+      readonly mode: 'CASH' | 'UPI' | 'CARD' | 'CHEQUE';
+      readonly note: CodecTypes['pg/text@1']['output'] | null;
+      readonly paidOn: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -359,11 +402,12 @@ export type FieldOutputTypes = {
         | 'ADMIN'
         | 'MANAGER'
         | 'SALES'
-        | 'DESIGNER'
+        | 'CUTSHEET'
+        | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
-        | 'ACCOUNTS'
         | 'DISPATCH'
+        | 'ACCOUNTS'
         | 'USER';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
@@ -372,12 +416,14 @@ export type FieldOutputTypes = {
 export type FieldInputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly clientId: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly leadId: CodecTypes['pg/int4@1']['input'];
       readonly message: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly userType: CodecTypes['pg/int4@1']['input'];
     };
     readonly Client: {
       readonly address: CodecTypes['pg/text@1']['input'] | null;
@@ -388,12 +434,13 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly lastName: CodecTypes['pg/text@1']['input'];
       readonly mobile: CodecTypes['pg/text@1']['input'];
+      readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Document: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly department:
-        'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
+        'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
       readonly extension: CodecTypes['pg/text@1']['input'] | null;
       readonly fileName: CodecTypes['pg/text@1']['input'];
       readonly filePath: CodecTypes['pg/text@1']['input'];
@@ -405,11 +452,13 @@ export type FieldInputTypes = {
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly uploadedById: CodecTypes['pg/int4@1']['input'];
     };
     readonly Lead: {
@@ -422,15 +471,39 @@ export type FieldInputTypes = {
       readonly createdById: CodecTypes['pg/int4@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly lastUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
+      readonly productionStage:
+        | 'PRESSING_01_8FT'
+        | 'PRESSING_02_10FT'
+        | 'CUTTING_01'
+        | 'CUTTING_02'
+        | 'EDGE_BENDING_01'
+        | 'EDGE_BENDING_02'
+        | 'FINISHING'
+        | 'CUT_OUT_MANUAL'
+        | 'CARPENTER'
+        | 'ROUTER_AND_HANDLE'
+        | 'DRILLING'
+        | 'CNC'
+        | 'ASSEMBLY_QC'
+        | 'PACKING'
+        | 'DISPATCH_DEPARTMENT'
+        | 'BILLING'
+        | null;
+      readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly projectName: CodecTypes['pg/text@1']['input'];
+      readonly quotationAmount: CodecTypes['pg/numeric@1']['input'] | null;
+      readonly requirement: CodecTypes['pg/text@1']['input'] | null;
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly LeadStatusHistory: {
@@ -441,11 +514,13 @@ export type FieldInputTypes = {
       readonly fromStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE'
+        | 'ACCOUNTS'
+        | 'COMPLETED'
         | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly leadId: CodecTypes['pg/int4@1']['input'];
@@ -453,11 +528,13 @@ export type FieldInputTypes = {
       readonly toStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
     };
     readonly LeadUser: {
       readonly assignedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -467,6 +544,16 @@ export type FieldInputTypes = {
       readonly role: 'PRIMARY' | 'COLLABORATOR';
       readonly unassignedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly userId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly Payment: {
+      readonly amount: CodecTypes['pg/numeric@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly createdById: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly leadId: CodecTypes['pg/int4@1']['input'];
+      readonly mode: 'CASH' | 'UPI' | 'CARD' | 'CHEQUE';
+      readonly note: CodecTypes['pg/text@1']['input'] | null;
+      readonly paidOn: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -481,11 +568,12 @@ export type FieldInputTypes = {
         | 'ADMIN'
         | 'MANAGER'
         | 'SALES'
-        | 'DESIGNER'
+        | 'CUTSHEET'
+        | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
-        | 'ACCOUNTS'
         | 'DISPATCH'
+        | 'ACCOUNTS'
         | 'USER';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
@@ -494,12 +582,14 @@ export type FieldInputTypes = {
 export type StorageColumnTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly clientId: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly leadId: CodecTypes['pg/int4@1']['output'];
       readonly message: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly userType: CodecTypes['pg/int4@1']['output'];
     };
     readonly Client: {
       readonly address: CodecTypes['pg/text@1']['output'] | null;
@@ -510,12 +600,13 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly lastName: CodecTypes['pg/text@1']['output'];
       readonly mobile: CodecTypes['pg/text@1']['output'];
+      readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly Document: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly department:
-        'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
+        'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
       readonly extension: CodecTypes['pg/text@1']['output'] | null;
       readonly fileName: CodecTypes['pg/text@1']['output'];
       readonly filePath: CodecTypes['pg/text@1']['output'];
@@ -527,11 +618,13 @@ export type StorageColumnTypes = {
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly uploadedById: CodecTypes['pg/int4@1']['output'];
     };
     readonly Lead: {
@@ -544,15 +637,39 @@ export type StorageColumnTypes = {
       readonly createdById: CodecTypes['pg/int4@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly lastUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+      readonly productionStage:
+        | 'PRESSING_01_8FT'
+        | 'PRESSING_02_10FT'
+        | 'CUTTING_01'
+        | 'CUTTING_02'
+        | 'EDGE_BENDING_01'
+        | 'EDGE_BENDING_02'
+        | 'FINISHING'
+        | 'CUT_OUT_MANUAL'
+        | 'CARPENTER'
+        | 'ROUTER_AND_HANDLE'
+        | 'DRILLING'
+        | 'CNC'
+        | 'ASSEMBLY_QC'
+        | 'PACKING'
+        | 'DISPATCH_DEPARTMENT'
+        | 'BILLING'
+        | null;
+      readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
       readonly projectName: CodecTypes['pg/text@1']['output'];
+      readonly quotationAmount: Numeric<12, 2> | null;
+      readonly requirement: CodecTypes['pg/text@1']['output'] | null;
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly LeadStatusHistory: {
@@ -563,11 +680,13 @@ export type StorageColumnTypes = {
       readonly fromStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE'
+        | 'ACCOUNTS'
+        | 'COMPLETED'
         | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly leadId: CodecTypes['pg/int4@1']['output'];
@@ -575,11 +694,13 @@ export type StorageColumnTypes = {
       readonly toStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
     };
     readonly LeadUser: {
       readonly assignedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -589,6 +710,16 @@ export type StorageColumnTypes = {
       readonly role: 'PRIMARY' | 'COLLABORATOR';
       readonly unassignedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly userId: CodecTypes['pg/int4@1']['output'];
+    };
+    readonly Payment: {
+      readonly amount: Numeric<12, 2>;
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly createdById: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly leadId: CodecTypes['pg/int4@1']['output'];
+      readonly mode: 'CASH' | 'UPI' | 'CARD' | 'CHEQUE';
+      readonly note: CodecTypes['pg/text@1']['output'] | null;
+      readonly paidOn: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -603,11 +734,12 @@ export type StorageColumnTypes = {
         | 'ADMIN'
         | 'MANAGER'
         | 'SALES'
-        | 'DESIGNER'
+        | 'CUTSHEET'
+        | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
-        | 'ACCOUNTS'
         | 'DISPATCH'
+        | 'ACCOUNTS'
         | 'USER';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
@@ -616,12 +748,14 @@ export type StorageColumnTypes = {
 export type StorageColumnInputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly clientId: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly leadId: CodecTypes['pg/int4@1']['input'];
       readonly message: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly userType: CodecTypes['pg/int4@1']['input'];
     };
     readonly Client: {
       readonly address: CodecTypes['pg/text@1']['input'] | null;
@@ -632,12 +766,13 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly lastName: CodecTypes['pg/text@1']['input'];
       readonly mobile: CodecTypes['pg/text@1']['input'];
+      readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Document: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly department:
-        'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
+        'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
       readonly extension: CodecTypes['pg/text@1']['input'] | null;
       readonly fileName: CodecTypes['pg/text@1']['input'];
       readonly filePath: CodecTypes['pg/text@1']['input'];
@@ -649,11 +784,13 @@ export type StorageColumnInputTypes = {
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly uploadedById: CodecTypes['pg/int4@1']['input'];
     };
     readonly Lead: {
@@ -666,15 +803,39 @@ export type StorageColumnInputTypes = {
       readonly createdById: CodecTypes['pg/int4@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly lastUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
+      readonly productionStage:
+        | 'PRESSING_01_8FT'
+        | 'PRESSING_02_10FT'
+        | 'CUTTING_01'
+        | 'CUTTING_02'
+        | 'EDGE_BENDING_01'
+        | 'EDGE_BENDING_02'
+        | 'FINISHING'
+        | 'CUT_OUT_MANUAL'
+        | 'CARPENTER'
+        | 'ROUTER_AND_HANDLE'
+        | 'DRILLING'
+        | 'CNC'
+        | 'ASSEMBLY_QC'
+        | 'PACKING'
+        | 'DISPATCH_DEPARTMENT'
+        | 'BILLING'
+        | null;
+      readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
       readonly projectName: CodecTypes['pg/text@1']['input'];
+      readonly quotationAmount: CodecTypes['pg/numeric@1']['input'] | null;
+      readonly requirement: CodecTypes['pg/text@1']['input'] | null;
       readonly status:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly LeadStatusHistory: {
@@ -685,11 +846,13 @@ export type StorageColumnInputTypes = {
       readonly fromStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE'
+        | 'ACCOUNTS'
+        | 'COMPLETED'
         | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly leadId: CodecTypes['pg/int4@1']['input'];
@@ -697,11 +860,13 @@ export type StorageColumnInputTypes = {
       readonly toStatus:
         | 'ENQUIRY'
         | 'QUOTATION'
+        | 'CUTSHEET'
         | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
         | 'DISPATCH'
-        | 'INVOICE';
+        | 'ACCOUNTS'
+        | 'COMPLETED';
     };
     readonly LeadUser: {
       readonly assignedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -711,6 +876,16 @@ export type StorageColumnInputTypes = {
       readonly role: 'PRIMARY' | 'COLLABORATOR';
       readonly unassignedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly userId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly Payment: {
+      readonly amount: CodecTypes['pg/numeric@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly createdById: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly leadId: CodecTypes['pg/int4@1']['input'];
+      readonly mode: 'CASH' | 'UPI' | 'CARD' | 'CHEQUE';
+      readonly note: CodecTypes['pg/text@1']['input'] | null;
+      readonly paidOn: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly User: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -725,11 +900,12 @@ export type StorageColumnInputTypes = {
         | 'ADMIN'
         | 'MANAGER'
         | 'SALES'
-        | 'DESIGNER'
+        | 'CUTSHEET'
+        | 'OPTIMISATION'
         | 'PURCHASE'
         | 'PRODUCTION'
-        | 'ACCOUNTS'
         | 'DISPATCH'
+        | 'ACCOUNTS'
         | 'USER';
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
@@ -738,15 +914,18 @@ export type StorageColumnInputTypes = {
 
 export namespace Models {
   export type public_ChatMessage = {
+    clientId: CodecTypes['pg/int4@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     id: CodecTypes['pg/int4@1']['output'];
     leadId: CodecTypes['pg/int4@1']['output'];
     message: CodecTypes['pg/text@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    userId: CodecTypes['pg/int4@1']['output'];
+    userId: CodecTypes['pg/int4@1']['output'] | null;
+    userType: CodecTypes['pg/int4@1']['output'];
+    client: public_Client | null;
     lead: public_Lead;
-    user: public_User;
-    readonly [RelationKeys]?: 'lead' | 'user';
+    user: public_User | null;
+    readonly [RelationKeys]?: 'client' | 'lead' | 'user';
   };
   export type public_Client = {
     address: CodecTypes['pg/text@1']['output'] | null;
@@ -757,13 +936,16 @@ export namespace Models {
     id: CodecTypes['pg/int4@1']['output'];
     lastName: CodecTypes['pg/text@1']['output'];
     mobile: CodecTypes['pg/text@1']['output'];
+    passwordHash: CodecTypes['pg/text@1']['output'] | null;
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     leads: public_Lead[];
-    readonly [RelationKeys]?: 'leads';
+    messages: public_ChatMessage[];
+    readonly [RelationKeys]?: 'leads' | 'messages';
   };
   export type public_Document = {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    department: 'ADMIN' | 'SALES' | 'DESIGN' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
+    department:
+      'SALES' | 'CUTSHEET' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'ACCOUNTS' | 'DISPATCH';
     extension: CodecTypes['pg/text@1']['output'] | null;
     fileName: CodecTypes['pg/text@1']['output'];
     filePath: CodecTypes['pg/text@1']['output'];
@@ -773,7 +955,15 @@ export namespace Models {
     mimeType: CodecTypes['pg/text@1']['output'] | null;
     originalName: CodecTypes['pg/text@1']['output'];
     status:
-      'ENQUIRY' | 'QUOTATION' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'DISPATCH' | 'INVOICE';
+      | 'ENQUIRY'
+      | 'QUOTATION'
+      | 'CUTSHEET'
+      | 'OPTIMISATION'
+      | 'PURCHASE'
+      | 'PRODUCTION'
+      | 'DISPATCH'
+      | 'ACCOUNTS'
+      | 'COMPLETED';
     uploadedById: CodecTypes['pg/int4@1']['output'];
     lead: public_Lead;
     uploadedBy: public_User;
@@ -789,9 +979,39 @@ export namespace Models {
     createdById: CodecTypes['pg/int4@1']['output'] | null;
     id: CodecTypes['pg/int4@1']['output'];
     lastUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+    productionStage:
+      | 'PRESSING_01_8FT'
+      | 'PRESSING_02_10FT'
+      | 'CUTTING_01'
+      | 'CUTTING_02'
+      | 'EDGE_BENDING_01'
+      | 'EDGE_BENDING_02'
+      | 'FINISHING'
+      | 'CUT_OUT_MANUAL'
+      | 'CARPENTER'
+      | 'ROUTER_AND_HANDLE'
+      | 'DRILLING'
+      | 'CNC'
+      | 'ASSEMBLY_QC'
+      | 'PACKING'
+      | 'DISPATCH_DEPARTMENT'
+      | 'BILLING'
+      | null;
+    productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
     projectName: CodecTypes['pg/text@1']['output'];
+    quotationAmount: Numeric<12, 2> | null;
+    requirement: CodecTypes['pg/text@1']['output'] | null;
     status:
-      'ENQUIRY' | 'QUOTATION' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'DISPATCH' | 'INVOICE';
+      | 'ENQUIRY'
+      | 'QUOTATION'
+      | 'CUTSHEET'
+      | 'OPTIMISATION'
+      | 'PURCHASE'
+      | 'PRODUCTION'
+      | 'DISPATCH'
+      | 'ACCOUNTS'
+      | 'COMPLETED';
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     assignedBy: public_User | null;
     assignments: public_LeadUser[];
@@ -801,6 +1021,8 @@ export namespace Models {
     documents: public_Document[];
     lastUpdatedBy: public_User | null;
     messages: public_ChatMessage[];
+    payments: public_Payment[];
+    productionStageUpdatedBy: public_User | null;
     statusHistory: public_LeadStatusHistory[];
     readonly [RelationKeys]?:
       | 'assignedBy'
@@ -811,6 +1033,8 @@ export namespace Models {
       | 'documents'
       | 'lastUpdatedBy'
       | 'messages'
+      | 'payments'
+      | 'productionStageUpdatedBy'
       | 'statusHistory';
   };
   export type public_LeadStatusHistory = {
@@ -821,17 +1045,27 @@ export namespace Models {
     fromStatus:
       | 'ENQUIRY'
       | 'QUOTATION'
+      | 'CUTSHEET'
       | 'OPTIMISATION'
       | 'PURCHASE'
       | 'PRODUCTION'
       | 'DISPATCH'
-      | 'INVOICE'
+      | 'ACCOUNTS'
+      | 'COMPLETED'
       | null;
     id: CodecTypes['pg/int4@1']['output'];
     leadId: CodecTypes['pg/int4@1']['output'];
     note: CodecTypes['pg/text@1']['output'] | null;
     toStatus:
-      'ENQUIRY' | 'QUOTATION' | 'OPTIMISATION' | 'PURCHASE' | 'PRODUCTION' | 'DISPATCH' | 'INVOICE';
+      | 'ENQUIRY'
+      | 'QUOTATION'
+      | 'CUTSHEET'
+      | 'OPTIMISATION'
+      | 'PURCHASE'
+      | 'PRODUCTION'
+      | 'DISPATCH'
+      | 'ACCOUNTS'
+      | 'COMPLETED';
     assignedBy: public_User | null;
     assignedTo: public_User | null;
     changedBy: public_User;
@@ -851,6 +1085,19 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'assignedBy' | 'lead' | 'user';
   };
+  export type public_Payment = {
+    amount: Numeric<12, 2>;
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    createdById: CodecTypes['pg/int4@1']['output'];
+    id: CodecTypes['pg/int4@1']['output'];
+    leadId: CodecTypes['pg/int4@1']['output'];
+    mode: 'CASH' | 'UPI' | 'CARD' | 'CHEQUE';
+    note: CodecTypes['pg/text@1']['output'] | null;
+    paidOn: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    createdBy: public_User;
+    lead: public_Lead;
+    readonly [RelationKeys]?: 'createdBy' | 'lead';
+  };
   export type public_User = {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     email: CodecTypes['pg/text@1']['output'];
@@ -864,11 +1111,12 @@ export namespace Models {
       | 'ADMIN'
       | 'MANAGER'
       | 'SALES'
-      | 'DESIGNER'
+      | 'CUTSHEET'
+      | 'OPTIMISATION'
       | 'PURCHASE'
       | 'PRODUCTION'
-      | 'ACCOUNTS'
       | 'DISPATCH'
+      | 'ACCOUNTS'
       | 'USER';
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     assignedLeads: public_Lead[];
@@ -880,6 +1128,8 @@ export namespace Models {
     historyAssignedBy: public_LeadStatusHistory[];
     historyAssignedTo: public_LeadStatusHistory[];
     messages: public_ChatMessage[];
+    payments: public_Payment[];
+    productionStageLeads: public_Lead[];
     statusChanges: public_LeadStatusHistory[];
     updatedLeads: public_Lead[];
     readonly [RelationKeys]?:
@@ -892,6 +1142,8 @@ export namespace Models {
       | 'historyAssignedBy'
       | 'historyAssignedTo'
       | 'messages'
+      | 'payments'
+      | 'productionStageLeads'
       | 'statusChanges'
       | 'updatedLeads';
   };
@@ -905,6 +1157,7 @@ export declare const models: {
     Lead: Models.public_Lead;
     LeadStatusHistory: Models.public_LeadStatusHistory;
     LeadUser: Models.public_LeadUser;
+    Payment: Models.public_Payment;
     User: Models.public_User;
   };
 };
@@ -929,6 +1182,11 @@ type ContractBase = Omit<
           readonly table: {
             readonly ChatMessage: {
               columns: {
+                readonly clientId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-temporal@1';
@@ -963,12 +1221,23 @@ type ContractBase = Omit<
                 readonly userId: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly userType: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
                   readonly nullable: false;
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
               indexes: readonly [
+                {
+                  readonly name: 'ChatMessage_clientId_idx_153a9a49';
+                  readonly prefix: 'ChatMessage_clientId_idx';
+                  readonly columns: readonly ['clientId'];
+                  readonly unique: false;
+                },
                 {
                   readonly name: 'ChatMessage_createdAt_idx_9575dbd7';
                   readonly prefix: 'ChatMessage_createdAt_idx';
@@ -1010,6 +1279,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatMessage';
+                    readonly columns: readonly ['clientId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Client';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1061,6 +1342,11 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly passwordHash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                 };
                 readonly updatedAt: {
                   readonly nativeType: 'timestamptz';
@@ -1266,10 +1552,36 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/int4@1';
                   readonly nullable: true;
                 };
+                readonly productionStage: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly productionStageUpdatedAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                };
+                readonly productionStageUpdatedById: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
                 readonly projectName: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly quotationAmount: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                };
+                readonly requirement: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                 };
                 readonly status: {
                   readonly nativeType: 'text';
@@ -1324,6 +1636,12 @@ type ContractBase = Omit<
                   readonly name: 'Lead_lastUpdatedById_idx_a82dd7fc';
                   readonly prefix: 'Lead_lastUpdatedById_idx';
                   readonly columns: readonly ['lastUpdatedById'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Lead_productionStageUpdatedById_idx_c7ffc0b1';
+                  readonly prefix: 'Lead_productionStageUpdatedById_idx';
+                  readonly columns: readonly ['productionStageUpdatedById'];
                   readonly unique: false;
                 },
                 {
@@ -1387,6 +1705,18 @@ type ContractBase = Omit<
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Lead';
                     readonly columns: readonly ['chatClosedById'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lead';
+                    readonly columns: readonly ['productionStageUpdatedById'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
@@ -1642,6 +1972,104 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly Payment: {
+              columns: {
+                readonly amount: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly createdById: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly leadId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly mode: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly note: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly paidOn: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Payment_createdById_idx_8bf640ed';
+                  readonly prefix: 'Payment_createdById_idx';
+                  readonly columns: readonly ['createdById'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Payment_leadId_idx_9113844c';
+                  readonly prefix: 'Payment_leadId_idx';
+                  readonly columns: readonly ['leadId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Payment_paidOn_idx_100b346d';
+                  readonly prefix: 'Payment_paidOn_idx';
+                  readonly columns: readonly ['paidOn'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Payment';
+                    readonly columns: readonly ['leadId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lead';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Payment';
+                    readonly columns: readonly ['createdById'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly User: {
               columns: {
                 readonly createdAt: {
@@ -1736,9 +2164,9 @@ type ContractBase = Omit<
             readonly Department: {
               readonly kind: 'valueSet';
               readonly values: readonly [
-                'ADMIN',
                 'SALES',
-                'DESIGN',
+                'CUTSHEET',
+                'OPTIMISATION',
                 'PURCHASE',
                 'PRODUCTION',
                 'ACCOUNTS',
@@ -1750,11 +2178,38 @@ type ContractBase = Omit<
               readonly values: readonly [
                 'ENQUIRY',
                 'QUOTATION',
+                'CUTSHEET',
                 'OPTIMISATION',
                 'PURCHASE',
                 'PRODUCTION',
                 'DISPATCH',
-                'INVOICE',
+                'ACCOUNTS',
+                'COMPLETED',
+              ];
+            };
+            readonly PaymentMode: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['CASH', 'UPI', 'CARD', 'CHEQUE'];
+            };
+            readonly ProductionStage: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'PRESSING_01_8FT',
+                'PRESSING_02_10FT',
+                'CUTTING_01',
+                'CUTTING_02',
+                'EDGE_BENDING_01',
+                'EDGE_BENDING_02',
+                'FINISHING',
+                'CUT_OUT_MANUAL',
+                'CARPENTER',
+                'ROUTER_AND_HANDLE',
+                'DRILLING',
+                'CNC',
+                'ASSEMBLY_QC',
+                'PACKING',
+                'DISPATCH_DEPARTMENT',
+                'BILLING',
               ];
             };
             readonly UserRole: {
@@ -1763,11 +2218,12 @@ type ContractBase = Omit<
                 'ADMIN',
                 'MANAGER',
                 'SALES',
-                'DESIGNER',
+                'CUTSHEET',
+                'OPTIMISATION',
                 'PURCHASE',
                 'PRODUCTION',
-                'ACCOUNTS',
                 'DISPATCH',
+                'ACCOUNTS',
                 'USER',
               ];
             };
@@ -1794,6 +2250,7 @@ type ContractBase = Omit<
       readonly model: 'LeadStatusHistory';
     };
     readonly LeadUser: { readonly namespace: 'public' & NamespaceId; readonly model: 'LeadUser' };
+    readonly Payment: { readonly namespace: 'public' & NamespaceId; readonly model: 'Payment' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
   readonly domain: {
@@ -1802,6 +2259,10 @@ type ContractBase = Omit<
         readonly models: {
           readonly ChatMessage: {
             readonly fields: {
+              readonly clientId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -1829,11 +2290,27 @@ type ContractBase = Omit<
                 };
               };
               readonly userId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly userType: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
             };
             readonly relations: {
+              readonly client: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Client';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['clientId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly lead: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Lead' };
                 readonly cardinality: 'N:1';
@@ -1846,7 +2323,7 @@ type ContractBase = Omit<
               readonly user: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
-                readonly nullable: false;
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['userId'];
                   readonly targetFields: readonly ['id'];
@@ -1857,12 +2334,14 @@ type ContractBase = Omit<
               readonly table: 'ChatMessage';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly clientId: { readonly column: 'clientId' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly id: { readonly column: 'id' };
                 readonly leadId: { readonly column: 'leadId' };
                 readonly message: { readonly column: 'message' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly userId: { readonly column: 'userId' };
+                readonly userType: { readonly column: 'userType' };
               };
             };
           };
@@ -1903,6 +2382,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly passwordHash: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly updatedAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -1914,6 +2397,17 @@ type ContractBase = Omit<
             readonly relations: {
               readonly leads: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Lead' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['clientId'];
+                };
+              };
+              readonly messages: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatMessage';
+                };
                 readonly cardinality: '1:N';
                 readonly on: {
                   readonly localFields: readonly ['id'];
@@ -1933,6 +2427,7 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly lastName: { readonly column: 'lastName' };
                 readonly mobile: { readonly column: 'mobile' };
+                readonly passwordHash: { readonly column: 'passwordHash' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
@@ -2074,8 +2569,35 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly productionStage: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly productionStageUpdatedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly productionStageUpdatedById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly projectName: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly quotationAmount: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                };
+              };
+              readonly requirement: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly status: {
@@ -2172,6 +2694,26 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['leadId'];
                 };
               };
+              readonly payments: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Payment';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['leadId'];
+                };
+              };
+              readonly productionStageUpdatedBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['productionStageUpdatedById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly statusHistory: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2197,7 +2739,14 @@ type ContractBase = Omit<
                 readonly createdById: { readonly column: 'createdById' };
                 readonly id: { readonly column: 'id' };
                 readonly lastUpdatedById: { readonly column: 'lastUpdatedById' };
+                readonly productionStage: { readonly column: 'productionStage' };
+                readonly productionStageUpdatedAt: { readonly column: 'productionStageUpdatedAt' };
+                readonly productionStageUpdatedById: {
+                  readonly column: 'productionStageUpdatedById';
+                };
                 readonly projectName: { readonly column: 'projectName' };
+                readonly quotationAmount: { readonly column: 'quotationAmount' };
+                readonly requirement: { readonly column: 'requirement' };
                 readonly status: { readonly column: 'status' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
@@ -2379,6 +2928,86 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Payment: {
+            readonly fields: {
+              readonly amount: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 12; readonly scale: 2 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly createdById: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly leadId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly mode: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly note: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly paidOn: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly createdBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['createdById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lead: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Lead' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['leadId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Payment';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly amount: { readonly column: 'amount' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly createdById: { readonly column: 'createdById' };
+                readonly id: { readonly column: 'id' };
+                readonly leadId: { readonly column: 'leadId' };
+                readonly mode: { readonly column: 'mode' };
+                readonly note: { readonly column: 'note' };
+                readonly paidOn: { readonly column: 'paidOn' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly createdAt: {
@@ -2519,6 +3148,25 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
+              readonly payments: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Payment';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['createdById'];
+                };
+              };
+              readonly productionStageLeads: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Lead' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['productionStageUpdatedById'];
+                };
+              };
               readonly statusChanges: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2568,9 +3216,9 @@ type ContractBase = Omit<
           readonly Department: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
-              { readonly name: 'ADMIN'; readonly value: 'ADMIN' },
               { readonly name: 'SALES'; readonly value: 'SALES' },
-              { readonly name: 'DESIGN'; readonly value: 'DESIGN' },
+              { readonly name: 'CUTSHEET'; readonly value: 'CUTSHEET' },
+              { readonly name: 'OPTIMISATION'; readonly value: 'OPTIMISATION' },
               { readonly name: 'PURCHASE'; readonly value: 'PURCHASE' },
               { readonly name: 'PRODUCTION'; readonly value: 'PRODUCTION' },
               { readonly name: 'ACCOUNTS'; readonly value: 'ACCOUNTS' },
@@ -2582,11 +3230,43 @@ type ContractBase = Omit<
             readonly members: readonly [
               { readonly name: 'ENQUIRY'; readonly value: 'ENQUIRY' },
               { readonly name: 'QUOTATION'; readonly value: 'QUOTATION' },
+              { readonly name: 'CUTSHEET'; readonly value: 'CUTSHEET' },
               { readonly name: 'OPTIMISATION'; readonly value: 'OPTIMISATION' },
               { readonly name: 'PURCHASE'; readonly value: 'PURCHASE' },
               { readonly name: 'PRODUCTION'; readonly value: 'PRODUCTION' },
               { readonly name: 'DISPATCH'; readonly value: 'DISPATCH' },
-              { readonly name: 'INVOICE'; readonly value: 'INVOICE' },
+              { readonly name: 'ACCOUNTS'; readonly value: 'ACCOUNTS' },
+              { readonly name: 'COMPLETED'; readonly value: 'COMPLETED' },
+            ];
+          };
+          readonly PaymentMode: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'CASH'; readonly value: 'CASH' },
+              { readonly name: 'UPI'; readonly value: 'UPI' },
+              { readonly name: 'CARD'; readonly value: 'CARD' },
+              { readonly name: 'CHEQUE'; readonly value: 'CHEQUE' },
+            ];
+          };
+          readonly ProductionStage: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'PRESSING_01_8FT'; readonly value: 'PRESSING_01_8FT' },
+              { readonly name: 'PRESSING_02_10FT'; readonly value: 'PRESSING_02_10FT' },
+              { readonly name: 'CUTTING_01'; readonly value: 'CUTTING_01' },
+              { readonly name: 'CUTTING_02'; readonly value: 'CUTTING_02' },
+              { readonly name: 'EDGE_BENDING_01'; readonly value: 'EDGE_BENDING_01' },
+              { readonly name: 'EDGE_BENDING_02'; readonly value: 'EDGE_BENDING_02' },
+              { readonly name: 'FINISHING'; readonly value: 'FINISHING' },
+              { readonly name: 'CUT_OUT_MANUAL'; readonly value: 'CUT_OUT_MANUAL' },
+              { readonly name: 'CARPENTER'; readonly value: 'CARPENTER' },
+              { readonly name: 'ROUTER_AND_HANDLE'; readonly value: 'ROUTER_AND_HANDLE' },
+              { readonly name: 'DRILLING'; readonly value: 'DRILLING' },
+              { readonly name: 'CNC'; readonly value: 'CNC' },
+              { readonly name: 'ASSEMBLY_QC'; readonly value: 'ASSEMBLY_QC' },
+              { readonly name: 'PACKING'; readonly value: 'PACKING' },
+              { readonly name: 'DISPATCH_DEPARTMENT'; readonly value: 'DISPATCH_DEPARTMENT' },
+              { readonly name: 'BILLING'; readonly value: 'BILLING' },
             ];
           };
           readonly UserRole: {
@@ -2595,11 +3275,12 @@ type ContractBase = Omit<
               { readonly name: 'ADMIN'; readonly value: 'ADMIN' },
               { readonly name: 'MANAGER'; readonly value: 'MANAGER' },
               { readonly name: 'SALES'; readonly value: 'SALES' },
-              { readonly name: 'DESIGNER'; readonly value: 'DESIGNER' },
+              { readonly name: 'CUTSHEET'; readonly value: 'CUTSHEET' },
+              { readonly name: 'OPTIMISATION'; readonly value: 'OPTIMISATION' },
               { readonly name: 'PURCHASE'; readonly value: 'PURCHASE' },
               { readonly name: 'PRODUCTION'; readonly value: 'PRODUCTION' },
-              { readonly name: 'ACCOUNTS'; readonly value: 'ACCOUNTS' },
               { readonly name: 'DISPATCH'; readonly value: 'DISPATCH' },
+              { readonly name: 'ACCOUNTS'; readonly value: 'ACCOUNTS' },
               { readonly name: 'USER'; readonly value: 'USER' },
             ];
           };

@@ -28,7 +28,7 @@ export const DUMMY_LEADS: DummyLead[] = [
   { id: 106, projectName: 'School Library Shelving', clientName: 'Green Valley School', status: 'PRODUCTION', assignedTo: 'Sneha Kulkarni', createdAt: ago(18 * DAY), updatedAt: ago(3 * DAY) },
   { id: 105, projectName: 'Kids Room Bunk Bed', clientName: 'Meera Iyer', status: 'PRODUCTION', assignedTo: 'Vikram Rao', createdAt: ago(21 * DAY), updatedAt: ago(4 * DAY) },
   { id: 104, projectName: 'Clinic Reception Desk', clientName: 'Dr. Kapoor Dental Care', status: 'DISPATCH', assignedTo: 'Arjun Mehta', createdAt: ago(26 * DAY), updatedAt: ago(5 * DAY) },
-  { id: 103, projectName: 'Walk-in Closet', clientName: 'Sanjay Patil', status: 'INVOICE', assignedTo: 'Priya Nair', createdAt: ago(40 * DAY), updatedAt: ago(8 * DAY) },
+  { id: 103, projectName: 'Walk-in Closet', clientName: 'Sanjay Patil', status: 'ACCOUNTS', assignedTo: 'Priya Nair', createdAt: ago(40 * DAY), updatedAt: ago(8 * DAY) },
   { id: 102, projectName: 'Conference Table (12-seater)', clientName: 'Orbit Logistics', status: 'OPTIMISATION', assignedTo: 'Arjun Mehta', createdAt: ago(45 * DAY), updatedAt: ago(9 * DAY) },
   { id: 101, projectName: 'Pooja Unit in Teak', clientName: 'Lakshmi Venkatesh', status: 'ENQUIRY', assignedTo: 'Sneha Kulkarni', createdAt: ago(50 * DAY), updatedAt: ago(12 * DAY) },
 ]

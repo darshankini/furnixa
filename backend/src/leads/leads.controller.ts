@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { AllowClients } from '../auth/allow-clients.decorator.js';
 import type { PublicUser } from '../auth/auth.types.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -7,6 +8,7 @@ import { RolesGuard } from '../auth/roles.guard.js';
 import { AssignLeadDto } from './dto/assign-lead.dto.js';
 import { CreateLeadDto } from './dto/create-lead.dto.js';
 import { ListLeadsQueryDto } from './dto/list-leads-query.dto.js';
+import { SetProductionStageDto } from './dto/set-production-stage.dto.js';
 import { UpdateLeadDto } from './dto/update-lead.dto.js';
 import { LeadsService } from './leads.service.js';
 import { LEAD_CREATE_ROLES, LEAD_DELETE_ROLES, LEAD_MANAGE_ROLES } from './leads.types.js';
@@ -17,7 +19,9 @@ import { LEAD_CREATE_ROLES, LEAD_DELETE_ROLES, LEAD_MANAGE_ROLES } from './leads
 export class LeadsController {
   constructor(private readonly leads: LeadsService) {}
 
+  /** Clients get only their own leads (filtered in LeadsService) */
   @Get()
+  @AllowClients()
   async findAll(@CurrentUser() user: PublicUser, @Query() query: ListLeadsQueryDto) {
     return { leads: await this.leads.findAll(user, query) };
   }
@@ -30,6 +34,7 @@ export class LeadsController {
   }
 
   @Get(':id')
+  @AllowClients()
   async findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: PublicUser) {
     return { lead: await this.leads.findOne(id, user) };
   }
@@ -52,6 +57,17 @@ export class LeadsController {
   @Roles(...LEAD_MANAGE_ROLES)
   async assign(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignLeadDto, @CurrentUser() user: PublicUser) {
     return { lead: await this.leads.assign(id, dto, user) };
+  }
+
+  /** Workshop stage inside the Production phase (the phase's own role, admins and managers) */
+  @Patch(':id/production-stage')
+  @Roles(...LEAD_MANAGE_ROLES)
+  async setProductionStage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SetProductionStageDto,
+    @CurrentUser() user: PublicUser,
+  ) {
+    return { lead: await this.leads.setProductionStage(id, dto.stage, user) };
   }
 
   @Delete(':id')

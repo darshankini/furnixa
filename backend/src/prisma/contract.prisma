@@ -4,22 +4,53 @@ enum UserRole {
   ADMIN
   MANAGER
   SALES
-  DESIGNER
+  CUTSHEET
+  OPTIMISATION
   PURCHASE
   PRODUCTION
-  ACCOUNTS
   DISPATCH
+  ACCOUNTS
   USER
 }
 
 enum LeadStatus {
   ENQUIRY
   QUOTATION
+  CUTSHEET
   OPTIMISATION
   PURCHASE
   PRODUCTION
   DISPATCH
-  INVOICE
+  ACCOUNTS
+  // Fully paid and closed; only admins and managers can move a lead here
+  COMPLETED
+}
+
+/// Where a lead is inside the Production phase, in workshop order
+enum ProductionStage {
+  PRESSING_01_8FT
+  PRESSING_02_10FT
+  CUTTING_01
+  CUTTING_02
+  EDGE_BENDING_01
+  EDGE_BENDING_02
+  FINISHING
+  CUT_OUT_MANUAL
+  CARPENTER
+  ROUTER_AND_HANDLE
+  DRILLING
+  CNC
+  ASSEMBLY_QC
+  PACKING
+  DISPATCH_DEPARTMENT
+  BILLING
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+  CARD
+  CHEQUE
 }
 
 enum AssignmentRole {
@@ -29,9 +60,9 @@ enum AssignmentRole {
 
 /// Folder a lead document is stored in: each department uploads into its own folder
 enum Department {
-  ADMIN
   SALES
-  DESIGN
+  CUTSHEET
+  OPTIMISATION
   PURCHASE
   PRODUCTION
   ACCOUNTS
@@ -52,11 +83,13 @@ model User {
   assignedLeads   Lead[] @relation("LeadAssignedBy")
   updatedLeads    Lead[] @relation("LeadUpdatedBy")
   chatClosedLeads Lead[] @relation("LeadChatClosedBy")
+  productionStageLeads Lead[] @relation("LeadProductionStageBy")
 
   assignments     LeadUser[] @relation("LeadUserAssignee")
   assignmentsMade LeadUser[] @relation("LeadUserAssignedBy")
   documents       Document[]
   messages        ChatMessage[]
+  payments        Payment[]
 
   statusChanges     LeadStatusHistory[] @relation("HistoryChangedBy")
   historyAssignedBy LeadStatusHistory[] @relation("HistoryAssignedBy")
@@ -77,8 +110,10 @@ model Client {
   email           String?
   alternateMobile String?
   address         String? 
+  passwordHash        String?
 
-  leads Lead[]
+  leads    Lead[]
+  messages ChatMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -92,6 +127,10 @@ model Lead {
   clientId    Int
   projectName String
   status      LeadStatus @default(ENQUIRY)
+  // Free text: what the client wants, e.g. "32 x 34 – 20 tables, 21 x 20 – 10 chairs"
+  requirement String?
+  // Entered when the lead moves into Quotation; payments are later tracked against it
+  quotationAmount Numeric(12, 2)?
 
   client Client @relation(fields: [clientId], references: [id])
 
@@ -126,10 +165,21 @@ model Lead {
     references: [id]
   )
 
+  // Current workshop stage; only set while the lead is (or was) in the Production phase
+  productionStage            ProductionStage?
+  productionStageUpdatedAt   DateTime?
+  productionStageUpdatedById Int?
+  productionStageUpdatedBy   User? @relation(
+    "LeadProductionStageBy",
+    fields: [productionStageUpdatedById],
+    references: [id]
+  )
+
   assignments   LeadUser[]
   documents     Document[]
   messages      ChatMessage[]
   statusHistory LeadStatusHistory[]
+  payments      Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -258,7 +308,11 @@ model Document {
 model ChatMessage {
   id     Int    @id @default(autoincrement())
   leadId Int
-  userId Int
+  // Exactly one sender: a staff user or the lead's client
+  // 1 = staff user (userId is set), 2 = client (clientId is set)
+  userType Int
+  userId   Int?
+  clientId Int?
   message String
 
   lead Lead @relation(
@@ -267,8 +321,13 @@ model ChatMessage {
     onDelete: Cascade
   )
 
-  user User @relation(
+  user User? @relation(
     fields: [userId],
+    references: [id]
+  )
+
+  client Client? @relation(
+    fields: [clientId],
     references: [id]
   )
 
@@ -277,5 +336,34 @@ model ChatMessage {
 
   @@index([leadId])
   @@index([userId])
+  @@index([clientId])
   @@index([createdAt])
+}
+
+/// A payment received against a lead's quotation amount (Payment follow-up)
+model Payment {
+  id          Int            @id @default(autoincrement())
+  leadId      Int
+  amount      Numeric(12, 2)
+  mode        PaymentMode
+  // The day the money was received (midnight UTC of that date)
+  paidOn      DateTime
+  note        String?
+  createdById Int
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  createdBy User @relation(
+    fields: [createdById],
+    references: [id]
+  )
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([paidOn])
 }

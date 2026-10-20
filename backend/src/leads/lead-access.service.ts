@@ -1,16 +1,18 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import type { PublicUser } from '../auth/auth.types.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { hasRole, LEAD_MANAGE_ROLES, LEAD_VIEW_ALL_ROLES } from './leads.types.js';
+import { canManagePhase, hasRole, LEAD_VIEW_ALL_ROLES } from './leads.types.js';
 
 const NO_ACCESS = 'You do not have access to this lead.';
 
 /**
  * One place for the "who can see / change this lead" rules, used by the lead, chat and document services.
  *
- * - Admins and managers can see every lead.
+ * - Admins and managers can see and manage every lead, in every phase.
  * - Everyone else can see a lead they created, or were ever assigned to (current or previous assignee).
  *   Previous assignees keep access so they can still read and write in the lead's chat.
+ * - Managing (edit, move, assign) also needs the role that owns the lead's current phase.
+ * - A client (userType 'client') can only see leads where they are the lead's client, and can never manage one.
  */
 @Injectable()
 export class LeadAccessService {
@@ -18,10 +20,16 @@ export class LeadAccessService {
 
   /** The lead's basic fields, or an error if it does not exist or the user may not see it */
   async getViewable(leadId: number, user: PublicUser) {
-    const lead = await this.prisma.orm.public.Lead.select('id', 'status', 'createdById', 'chatClosed')
+    const lead = await this.prisma.orm.public.Lead.select('id', 'status', 'clientId', 'createdById', 'chatClosed')
       .where({ id: leadId })
       .first();
     if (!lead) throw new NotFoundException('Lead not found.');
+
+    // A client's id is a Client id, so it must never be compared with createdById or assignment user ids
+    if (user.userType === 'client') {
+      if (lead.clientId !== user.id) throw new ForbiddenException(NO_ACCESS);
+      return lead;
+    }
 
     if (!hasRole(user, LEAD_VIEW_ALL_ROLES) && !(await this.isInvolved(lead, user.id))) {
       throw new ForbiddenException(NO_ACCESS);
@@ -29,10 +37,11 @@ export class LeadAccessService {
     return lead;
   }
 
-  /** Like getViewable, but the user must also be allowed to edit, move and assign leads */
+  /** Like getViewable, but the user must also be allowed to manage the lead's current phase (admins and managers: any phase) */
   async getManageable(leadId: number, user: PublicUser) {
-    if (!hasRole(user, LEAD_MANAGE_ROLES)) throw new ForbiddenException('You do not have permission to do this.');
-    return this.getViewable(leadId, user);
+    const lead = await this.getViewable(leadId, user);
+    if (user.userType === 'client' || !canManagePhase(user.role, lead.status)) throw new ForbiddenException('You do not have permission to do this.');
+    return lead;
   }
 
   /** Created the lead, or has an assignment row (active or not) */
