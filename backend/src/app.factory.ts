@@ -7,6 +7,8 @@ export async function createApp() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
+  // Frontend and API live on different subdomains in production, so the browser needs CORS (with cookies)
+  app.enableCors({ origin: process.env.FRONTEND_URL, credentials: true });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({

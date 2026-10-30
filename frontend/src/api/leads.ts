@@ -1,5 +1,5 @@
 import type { UserRole } from './auth'
-import { apiRequest, apiUpload } from './client'
+import { API_BASE, apiRequest, apiUpload } from './client'
 import type { LeadStatus, ProductionStage } from '../data/phases'
 
 /** Matches the Department enum in backend/src/prisma/contract.prisma */
@@ -163,7 +163,7 @@ export const leadsApi = {
   },
 
   /** A plain link: the browser downloads it with the session cookie */
-  documentUrl: (id: number, documentId: number) => `/api/leads/${id}/documents/${documentId}/download`,
+  documentUrl: (id: number, documentId: number) => `${API_BASE}/leads/${id}/documents/${documentId}/download`,
 
   removeDocument: (id: number, documentId: number) =>
     apiRequest<{ message: string }>(`/leads/${id}/documents/${documentId}`, { method: 'DELETE' }),

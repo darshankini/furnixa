@@ -1,3 +1,6 @@
+/** In dev Vite proxies /api to NestJS; in production VITE_API_URL points at the API host (e.g. https://furnixaapi.divinex.tech/api) */
+export const API_BASE: string = import.meta.env.VITE_API_URL ?? '/api'
+
 export class ApiError extends Error {
   status: number
 
@@ -14,9 +17,9 @@ interface RequestOptions {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method: options.method ?? 'GET',
-    credentials: 'same-origin',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   })
@@ -25,9 +28,9 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
 /** POST a multipart form (file uploads). The browser sets the multipart Content-Type itself. */
 export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    credentials: 'same-origin',
+    credentials: 'include',
     headers: { Accept: 'application/json' },
     body: form,
   })
