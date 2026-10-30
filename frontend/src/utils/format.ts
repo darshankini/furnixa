@@ -30,3 +30,11 @@ export function sumMoney(amounts: string[]): number {
 export function initialsOf(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
 }
+
+/** 2048 → "2 KB"; empty when the size is unknown */
+export function formatSize(bytes: number | null): string {
+  if (bytes === null) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}

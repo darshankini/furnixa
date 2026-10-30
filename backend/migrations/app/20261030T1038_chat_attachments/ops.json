@@ -1,0 +1,170 @@
+[
+  {
+    "id": "column.public.ChatMessage.attachmentMimeType",
+    "label": "Add column \"attachmentMimeType\" to \"ChatMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "attachmentMimeType",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"attachmentMimeType\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentMimeType"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"attachmentMimeType\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ADD COLUMN \"attachmentMimeType\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"attachmentMimeType\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentMimeType"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.ChatMessage.attachmentName",
+    "label": "Add column \"attachmentName\" to \"ChatMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "attachmentName",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"attachmentName\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentName"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"attachmentName\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ADD COLUMN \"attachmentName\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"attachmentName\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentName"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.ChatMessage.attachmentPath",
+    "label": "Add column \"attachmentPath\" to \"ChatMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "attachmentPath",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"attachmentPath\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentPath"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"attachmentPath\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ADD COLUMN \"attachmentPath\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"attachmentPath\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentPath"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.ChatMessage.attachmentSize",
+    "label": "Add column \"attachmentSize\" to \"ChatMessage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "attachmentSize",
+        "table": "ChatMessage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"attachmentSize\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentSize"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"attachmentSize\"",
+        "sql": "ALTER TABLE \"public\".\"ChatMessage\" ADD COLUMN \"attachmentSize\" int8"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"attachmentSize\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChatMessage",
+          "attachmentSize"
+        ]
+      }
+    ]
+  }
+]

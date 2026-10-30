@@ -313,7 +313,14 @@ model ChatMessage {
   userType Int
   userId   Int?
   clientId Int?
+  // Empty when the message is only an attachment
   message String
+
+  // Optional file (photo, video, PDF, text, Excel), stored under uploads/leads/<leadId>/chat/
+  attachmentName     String?
+  attachmentPath     String?
+  attachmentMimeType String?
+  attachmentSize     BigInt?
 
   lead Lead @relation(
     fields: [leadId],

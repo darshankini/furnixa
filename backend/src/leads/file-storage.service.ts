@@ -60,6 +60,16 @@ export class FileStorageService {
     return createReadStream(absolute);
   }
 
+  /** Absolute path on disk (for res.sendFile, which supports Range requests for video); null if missing */
+  async locate(relativePath: string): Promise<string | null> {
+    const absolute = this.resolve(relativePath);
+    try {
+      return (await stat(absolute)).isFile() ? absolute : null;
+    } catch {
+      return null;
+    }
+  }
+
   /** Deleting a file that is already gone is not an error */
   async remove(relativePath: string): Promise<void> {
     await unlink(this.resolve(relativePath)).catch(() => undefined);
@@ -83,4 +93,11 @@ export class FileStorageService {
 function safeExtension(originalName: string): string | null {
   const ext = path.extname(originalName).toLowerCase();
   return /^\.[a-z0-9]{1,10}$/.test(ext) ? ext : null;
+}
+
+/** The uploaded name without any folder part or control characters, as shown back to people */
+export function cleanName(name: string): string {
+  // oxlint-disable-next-line no-control-regex -- stripping control characters is the point
+  const base = path.basename(name.replace(/\\/g, '/')).replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  return (base || 'file').slice(0, 255);
 }

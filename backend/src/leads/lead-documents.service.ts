@@ -1,8 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import path from 'node:path';
 import type { PublicUser } from '../auth/auth.types.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { FileStorageService, type UploadedFileData } from './file-storage.service.js';
+import { cleanName, FileStorageService, type UploadedFileData } from './file-storage.service.js';
 import { LeadAccessService } from './lead-access.service.js';
 import {
   DEPARTMENT_BY_ROLE,
@@ -159,11 +158,4 @@ function toDocumentDto(d: {
     uploadedBy: toUserRef(must(d.uploadedBy)),
     createdAt: iso(d.createdAt),
   };
-}
-
-/** Keep just the file name, without folders or control characters, max 255 chars */
-function cleanName(name: string): string {
-  // oxlint-disable-next-line no-control-regex -- stripping control characters is the point
-  const base = path.basename(name.replace(/\\/g, '/')).replace(/[\u0000-\u001f\u007f]/g, '').trim();
-  return (base || 'file').slice(0, 255);
 }

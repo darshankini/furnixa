@@ -22,7 +22,7 @@ import { UploadDocumentDto } from './dto/upload-document.dto.js';
 import type { UploadedFileData } from './file-storage.service.js';
 import { LeadDocumentsService } from './lead-documents.service.js';
 
-export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 @Controller('leads/:id/documents')
 @UseGuards(JwtAuthGuard, RolesGuard)

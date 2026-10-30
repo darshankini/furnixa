@@ -164,7 +164,7 @@ button.icon-button { background: none; cursor: pointer; }
 .chat-author { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; }
 .chat-bubble p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .chat-bubble time { display: block; margin-top: 4px; font-size: 0.72rem; color: var(--muted); }
-.chat-form { display: flex; gap: 8px; align-items: flex-end; }
+.chat-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
 .chat-form textarea {
   flex: 1;
   resize: none;
@@ -176,6 +176,40 @@ button.icon-button { background: none; cursor: pointer; }
 }
 .chat-form textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(180, 83, 15, 0.15); }
 .chat-form .btn { padding: 12px 14px; }
+
+/* Attachments: the picked file above the input, and media/files inside bubbles */
+.chat-file-chip {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  min-width: 0;
+}
+.chat-file-chip .icon-button { margin-left: auto; }
+.chat-file-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-media { display: block; margin: 2px 0 6px; border-radius: 8px; overflow: hidden; }
+.chat-media img,
+video.chat-media { display: block; max-width: min(280px, 100%); max-height: 280px; object-fit: cover; background: #000; }
+.chat-media img { background: transparent; }
+.chat-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 280px;
+  margin: 2px 0 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+.chat-file:hover { background: #fff; }
+.chat-file .chat-file-name { flex: 1; }
 .chat-closed-banner {
   display: flex;
   gap: 8px;

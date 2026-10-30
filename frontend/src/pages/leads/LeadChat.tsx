@@ -1,13 +1,25 @@
-import { Lock, LockOpen, Send } from 'lucide-react'
+import { Download, FileSpreadsheet, FileText, Lock, LockOpen, Paperclip, Send, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { ApiError } from '../../api/client'
-import { leadsApi, type ChatMessage, type LeadDetail } from '../../api/leads'
+import { leadsApi, type ChatAttachment, type ChatMessage, type LeadDetail } from '../../api/leads'
 import { useAuth } from '../../context/auth-context'
 import { LEAD_CHAT_CLOSE_ROLES, ROLE_BY_VALUE } from '../../data/roles'
-import { formatDateTime, initialsOf } from '../../utils/format'
+import { formatDateTime, formatSize, initialsOf } from '../../utils/format'
 
 /** How often to check for new messages while the tab is visible */
 const POLL_MS = 5000
+
+/** Same list and limit as CHAT_ALLOWED_TYPES / MAX_CHAT_UPLOAD_BYTES in the backend */
+const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'mp4', 'm4v', 'mov', 'webm', 'pdf', 'txt', 'csv', 'xls', 'xlsx']
+const MAX_BYTES = 20 * 1024 * 1024
+
+/** Returns why the file can't be sent, or null if it can */
+function checkFile(file: File): string | null {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+  if (!ALLOWED_EXTENSIONS.includes(ext)) return `"${file.name}" can't be sent. Allowed: photos, videos, PDF, text and Excel files.`
+  if (file.size > MAX_BYTES) return `"${file.name}" is larger than 20 MB.`
+  return null
+}
 
 interface Props {
   lead: LeadDetail
@@ -24,9 +36,11 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState('')
   const [toggling, setToggling] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
 
   const listRef = useRef<HTMLDivElement>(null)
   const lastId = useRef(0)
+  const fileInput = useRef<HTMLInputElement>(null)
 
   const canClose = !!me && LEAD_CHAT_CLOSE_ROLES.includes(me.role)
 
@@ -74,18 +88,27 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
   async function handleSend(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const message = text.trim()
-    if (!message) return
+    if (!message && !file) return
     setSending(true)
     setSendError('')
     try {
-      const res = await leadsApi.sendMessage(lead.id, message)
+      const res = await leadsApi.sendMessage(lead.id, message, file ?? undefined)
       addMessages([res.message])
       setText('')
+      setFile(null)
     } catch (err) {
       setSendError(err instanceof ApiError ? err.message : 'Message not sent. Please try again.')
     } finally {
       setSending(false)
     }
+  }
+
+  function pickFile(picked: File | undefined) {
+    if (fileInput.current) fileInput.current.value = '' // lets the same file be picked again
+    if (!picked) return
+    const problem = checkFile(picked)
+    setSendError(problem ?? '')
+    setFile(problem ? null : picked)
   }
 
   async function toggleClosed() {
@@ -133,7 +156,8 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
                       <span className="text-muted"> · {m.senderType === 'client' ? 'Client' : ROLE_BY_VALUE[m.user.role].label}</span>
                     </span>
                   )}
-                  <p>{m.message}</p>
+                  {m.attachment && <Attachment leadId={lead.id} messageId={m.id} attachment={m.attachment} />}
+                  {m.message && <p>{m.message}</p>}
                   <time dateTime={m.createdAt}>{formatDateTime(m.createdAt)}</time>
                 </div>
               </div>
@@ -152,6 +176,26 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
         </p>
       ) : (
         <form className="chat-form" onSubmit={handleSend}>
+          {file && (
+            <div className="chat-file-chip">
+              <Paperclip size={14} aria-hidden="true" />
+              <span className="chat-file-name">{file.name}</span>
+              <span className="text-muted">{formatSize(file.size)}</span>
+              <button type="button" className="icon-button" onClick={() => setFile(null)} disabled={sending} aria-label="Remove attachment" title="Remove">
+                <X size={14} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+          <input
+            ref={fileInput}
+            type="file"
+            hidden
+            accept={ALLOWED_EXTENSIONS.map((e) => `.${e}`).join(',')}
+            onChange={(e) => pickFile(e.target.files?.[0])}
+          />
+          <button type="button" className="btn btn-outline" onClick={() => fileInput.current?.click()} disabled={sending} aria-label="Attach a file" title="Attach photo, video or file">
+            <Paperclip size={16} aria-hidden="true" />
+          </button>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -162,17 +206,41 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
                 e.currentTarget.form?.requestSubmit()
               }
             }}
-            placeholder="Write a message…"
+            placeholder={file ? 'Add a caption (optional)…' : 'Write a message…'}
             rows={2}
             maxLength={2000}
             aria-label="Message"
             disabled={sending}
           />
-          <button type="submit" className="btn btn-accent" disabled={sending || !text.trim()} aria-label="Send">
+          <button type="submit" className="btn btn-accent" disabled={sending || (!text.trim() && !file)} aria-label="Send">
             <Send size={16} aria-hidden="true" />
           </button>
         </form>
       )}
     </section>
+  )
+}
+
+/** Photos and videos play in the bubble; other files are a download link */
+function Attachment({ leadId, messageId, attachment }: { leadId: number; messageId: number; attachment: ChatAttachment }) {
+  const url = leadsApi.attachmentUrl(leadId, messageId)
+  if (attachment.kind === 'image') {
+    return (
+      <a href={url} target="_blank" rel="noreferrer" className="chat-media">
+        <img src={url} alt={attachment.name} loading="lazy" />
+      </a>
+    )
+  }
+  if (attachment.kind === 'video') {
+    return <video className="chat-media" src={url} controls preload="metadata" aria-label={attachment.name} />
+  }
+  const Icon = /.(xlsx?|csv)$/i.test(attachment.name) ? FileSpreadsheet : FileText
+  return (
+    <a href={leadsApi.attachmentUrl(leadId, messageId, true)} className="chat-file" download>
+      <Icon size={20} aria-hidden="true" />
+      <span className="chat-file-name">{attachment.name}</span>
+      <span className="text-muted">{formatSize(attachment.size)}</span>
+      <Download size={15} aria-hidden="true" />
+    </a>
   )
 }

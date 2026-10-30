@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f70635337f9fa84ce0349340adef59b5bad49bf2a1d75db6b75b70086e8787eb'>;
+  StorageHashBase<'2328b9222ac9ebca68d474c1d521f5ce3242b701767f687acbd206e1ec30a748'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -250,6 +250,10 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 export type FieldOutputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly attachmentMimeType: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentName: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentPath: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentSize: CodecTypes['pg/int8@1']['output'] | null;
       readonly clientId: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -416,6 +420,10 @@ export type FieldOutputTypes = {
 export type FieldInputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly attachmentMimeType: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentName: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentPath: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentSize: CodecTypes['pg/int8@1']['input'] | null;
       readonly clientId: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -582,6 +590,10 @@ export type FieldInputTypes = {
 export type StorageColumnTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly attachmentMimeType: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentName: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentPath: CodecTypes['pg/text@1']['output'] | null;
+      readonly attachmentSize: CodecTypes['pg/int8@1']['output'] | null;
       readonly clientId: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -748,6 +760,10 @@ export type StorageColumnTypes = {
 export type StorageColumnInputTypes = {
   readonly public: {
     readonly ChatMessage: {
+      readonly attachmentMimeType: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentName: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentPath: CodecTypes['pg/text@1']['input'] | null;
+      readonly attachmentSize: CodecTypes['pg/int8@1']['input'] | null;
       readonly clientId: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -914,6 +930,10 @@ export type StorageColumnInputTypes = {
 
 export namespace Models {
   export type public_ChatMessage = {
+    attachmentMimeType: CodecTypes['pg/text@1']['output'] | null;
+    attachmentName: CodecTypes['pg/text@1']['output'] | null;
+    attachmentPath: CodecTypes['pg/text@1']['output'] | null;
+    attachmentSize: CodecTypes['pg/int8@1']['output'] | null;
     clientId: CodecTypes['pg/int4@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     id: CodecTypes['pg/int4@1']['output'];
@@ -1182,6 +1202,26 @@ type ContractBase = Omit<
           readonly table: {
             readonly ChatMessage: {
               columns: {
+                readonly attachmentMimeType: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly attachmentName: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly attachmentPath: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly attachmentSize: {
+                  readonly nativeType: 'int8';
+                  readonly codecId: 'pg/int8@1';
+                  readonly nullable: true;
+                };
                 readonly clientId: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
@@ -2259,6 +2299,22 @@ type ContractBase = Omit<
         readonly models: {
           readonly ChatMessage: {
             readonly fields: {
+              readonly attachmentMimeType: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly attachmentName: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly attachmentPath: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly attachmentSize: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int8@1' };
+              };
               readonly clientId: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -2334,6 +2390,10 @@ type ContractBase = Omit<
               readonly table: 'ChatMessage';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly attachmentMimeType: { readonly column: 'attachmentMimeType' };
+                readonly attachmentName: { readonly column: 'attachmentName' };
+                readonly attachmentPath: { readonly column: 'attachmentPath' };
+                readonly attachmentSize: { readonly column: 'attachmentSize' };
                 readonly clientId: { readonly column: 'clientId' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly id: { readonly column: 'id' };

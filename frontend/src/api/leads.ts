@@ -80,7 +80,16 @@ export interface ChatMessage {
   /** A client and a staff user can share the same id, so compare both */
   senderType: 'user' | 'client'
   user: UserRef
+  attachment: ChatAttachment | null
   createdAt: string
+}
+
+export interface ChatAttachment {
+  name: string
+  /** image and video are shown in the chat, file is a download link */
+  kind: 'image' | 'video' | 'file'
+  mimeType: string
+  size: number | null
 }
 
 export interface LeadDocument {
@@ -144,8 +153,18 @@ export const leadsApi = {
   messages: (id: number, after?: number) =>
     apiRequest<{ messages: ChatMessage[] }>(`/leads/${id}/messages${after ? `?after=${after}` : ''}`),
 
-  sendMessage: (id: number, message: string) =>
-    apiRequest<{ message: ChatMessage }>(`/leads/${id}/messages`, { method: 'POST', body: { message } }),
+  /** With a file the message text is an optional caption */
+  sendMessage: (id: number, message: string, file?: File) => {
+    if (!file) return apiRequest<{ message: ChatMessage }>(`/leads/${id}/messages`, { method: 'POST', body: { message } })
+    const form = new FormData()
+    form.append('file', file)
+    if (message) form.append('message', message)
+    return apiUpload<{ message: ChatMessage }>(`/leads/${id}/messages`, form)
+  },
+
+  /** Used directly as <img>/<video> src or a link; the session cookie goes along */
+  attachmentUrl: (id: number, messageId: number, download = false) =>
+    `${API_BASE}/leads/${id}/messages/${messageId}/attachment${download ? '?download=true' : ''}`,
 
   setChatClosed: (id: number, closed: boolean) =>
     apiRequest<{ chat: { chatClosed: boolean; chatClosedAt: string | null; chatClosedBy: UserRef | null } }>(

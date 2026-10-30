@@ -267,6 +267,34 @@
         "models": {
           "ChatMessage": {
             "fields": {
+              "attachmentMimeType": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "attachmentName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "attachmentPath": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "attachmentSize": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int8@1",
+                  "kind": "scalar"
+                }
+              },
               "clientId": {
                 "nullable": true,
                 "type": {
@@ -376,6 +404,18 @@
             },
             "storage": {
               "fields": {
+                "attachmentMimeType": {
+                  "column": "attachmentMimeType"
+                },
+                "attachmentName": {
+                  "column": "attachmentName"
+                },
+                "attachmentPath": {
+                  "column": "attachmentPath"
+                },
+                "attachmentSize": {
+                  "column": "attachmentSize"
+                },
                 "clientId": {
                   "column": "clientId"
                 },
@@ -1864,6 +1904,26 @@
           "table": {
             "ChatMessage": {
               "columns": {
+                "attachmentMimeType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "attachmentName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "attachmentPath": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "attachmentSize": {
+                  "codecId": "pg/int8@1",
+                  "nativeType": "int8",
+                  "nullable": true
+                },
                 "clientId": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -3269,7 +3329,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f70635337f9fa84ce0349340adef59b5bad49bf2a1d75db6b75b70086e8787eb"
+    "storageHash": "2328b9222ac9ebca68d474c1d521f5ce3242b701767f687acbd206e1ec30a748"
   },
   "capabilities": {
     "postgres": {

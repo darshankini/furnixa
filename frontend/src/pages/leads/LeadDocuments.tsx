@@ -6,17 +6,10 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { useAuth } from '../../context/auth-context'
 import { DEPARTMENT_BY_ROLE, DEPARTMENTS, PHASE_BY_STATUS } from '../../data/phases'
 import { PICK_DEPARTMENT_ROLES } from '../../data/roles'
-import { formatDateTime } from '../../utils/format'
+import { formatDateTime, formatSize } from '../../utils/format'
 
 /** Same limit as MAX_UPLOAD_BYTES in the backend */
-const MAX_BYTES = 25 * 1024 * 1024
-
-function formatSize(bytes: number | null): string {
-  if (bytes === null) return ''
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-}
+const MAX_BYTES = 20 * 1024 * 1024
 
 /** Files by department folder. Users currently assigned upload into their own department's folder. */
 export function LeadDocuments({ lead }: { lead: LeadDetail }) {
@@ -62,7 +55,7 @@ export function LeadDocuments({ lead }: { lead: LeadDetail }) {
     if (!file) return
     setUploadError('')
     if (file.size > MAX_BYTES) {
-      setUploadError('Files can be at most 25 MB.')
+      setUploadError('Files can be at most 20 MB.')
       return
     }
     setUploading(true)

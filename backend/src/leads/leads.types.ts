@@ -2,6 +2,7 @@ import type { Scalars } from '@prisma/orm-postgres/family-contract/types';
 import type { PublicUser, UserRole, UserType } from '../auth/auth.types.js';
 import type { Models } from '../prisma/contract.js';
 import { GLOBAL_ROLES, isGlobalRole } from '../users/users.types.js';
+import type { ChatAttachmentKind } from './chat-attachments.js';
 
 export type Lead = Scalars<Models.public_Lead>;
 export type LeadStatus = Lead['status'];
@@ -220,7 +221,17 @@ export interface ChatMessageDto {
   /** Who sent it: a staff user, or the lead's client (role is then always CLIENT_ROLE) */
   senderType: UserType;
   user: UserRefDto;
+  /** Fetched from GET /leads/:id/messages/:messageId/attachment */
+  attachment: ChatAttachmentDto | null;
   createdAt: string;
+}
+
+export interface ChatAttachmentDto {
+  name: string;
+  /** image and video are shown inline, file is a download link */
+  kind: ChatAttachmentKind;
+  mimeType: string;
+  size: number | null;
 }
 
 export interface LeadDocumentDto {
