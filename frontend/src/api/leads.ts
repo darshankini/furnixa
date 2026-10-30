@@ -84,6 +84,15 @@ export interface ChatMessage {
   createdAt: string
 }
 
+/** A staff user or the lead's client. Ids repeat across the two, so `${type}:${id}` is the key. */
+export interface MentionablePerson {
+  type: 'user' | 'client'
+  id: number
+  firstName: string
+  lastName: string
+  role: UserRole
+}
+
 export interface ChatAttachment {
   name: string
   /** image and video are shown in the chat, file is a download link */
@@ -154,13 +163,21 @@ export const leadsApi = {
     apiRequest<{ messages: ChatMessage[] }>(`/leads/${id}/messages${after ? `?after=${after}` : ''}`),
 
   /** With a file the message text is an optional caption */
-  sendMessage: (id: number, message: string, file?: File) => {
-    if (!file) return apiRequest<{ message: ChatMessage }>(`/leads/${id}/messages`, { method: 'POST', body: { message } })
+  sendMessage: (id: number, message: string, { file, mentions = [] }: { file?: File; mentions?: string[] } = {}) => {
+    // "user:12,client:3"; the server only notifies people whose "@First Last" is in the text
+    const mentionList = mentions.length ? mentions.join(',') : undefined
+    if (!file) {
+      return apiRequest<{ message: ChatMessage }>(`/leads/${id}/messages`, { method: 'POST', body: { message, mentions: mentionList } })
+    }
     const form = new FormData()
     form.append('file', file)
     if (message) form.append('message', message)
+    if (mentionList) form.append('mentions', mentionList)
     return apiUpload<{ message: ChatMessage }>(`/leads/${id}/messages`, form)
   },
+
+  /** People who can be @mentioned in this lead's chat (everyone else who can read it) */
+  mentionable: (id: number) => apiRequest<{ people: MentionablePerson[] }>(`/leads/${id}/mentionable`),
 
   /** Used directly as <img>/<video> src or a link; the session cookie goes along */
   attachmentUrl: (id: number, messageId: number, download = false) =>

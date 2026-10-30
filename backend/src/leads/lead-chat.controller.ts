@@ -54,7 +54,14 @@ export class LeadChatController {
     @UploadedFile() file: UploadedFileData | undefined,
     @CurrentUser() user: PublicUser,
   ) {
-    return { message: await this.chat.send(id, dto.message ?? '', file, user) };
+    return { message: await this.chat.send(id, dto.message ?? '', file, dto.mentions, user) };
+  }
+
+  /** People who can be @mentioned in this chat (everyone else who can read it) */
+  @Get('mentionable')
+  @AllowClients()
+  async mentionable(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: PublicUser) {
+    return { people: await this.chat.mentionable(id, user) };
   }
 
   /**

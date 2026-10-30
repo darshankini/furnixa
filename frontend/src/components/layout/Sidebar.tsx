@@ -4,6 +4,7 @@ import type { UserRole } from '../../api/auth'
 import { useAuth } from '../../context/auth-context'
 import { PHASES } from '../../data/phases'
 import { isClient, PAYMENT_ROLES, USER_VIEW_ROLES } from '../../data/roles'
+import { NotificationBell } from './NotificationBell'
 
 interface NavItem {
   to: string
@@ -78,6 +79,7 @@ export function Sidebar({ open, onClose }: Props) {
           <strong>Furnixa</strong>
           <span>Furniture CMS</span>
         </div>
+        <NotificationBell variant="sidebar" />
         <button type="button" className="sidebar-close" onClick={onClose} aria-label="Close menu">
           <X size={20} />
         </button>

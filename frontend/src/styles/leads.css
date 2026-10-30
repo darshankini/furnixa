@@ -164,7 +164,37 @@ button.icon-button { background: none; cursor: pointer; }
 .chat-author { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; }
 .chat-bubble p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .chat-bubble time { display: block; margin-top: 4px; font-size: 0.72rem; color: var(--muted); }
-.chat-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.chat-form { position: relative; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+
+/* @mentions: highlighted names, a tinted edge on messages that mention you, and the jump-to flash */
+.chat-mention { color: var(--primary); font-weight: 600; }
+.chat-mention.me { background: #fde2cc; border-radius: 4px; padding: 0 2px; }
+.chat-message.mentions-me .chat-bubble { box-shadow: inset 3px 0 0 var(--primary); }
+.chat-message.flash .chat-bubble { animation: chat-flash 2.5s ease-out; }
+@keyframes chat-flash {
+  0%, 30% { background: #fcd9bd; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-message.flash .chat-bubble { animation: none; outline: 2px solid var(--primary); }
+}
+.mention-picker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 10;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(31, 26, 23, 0.14);
+}
+.mention-picker li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+.mention-picker li.active { background: #f6ece4; }
+.mention-picker .mention-name { font-weight: 600; }
+.mention-picker .text-muted { margin-left: auto; font-size: 0.8rem; }
 .chat-form textarea {
   flex: 1;
   resize: none;

@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { trim } from '../../clients/dto/client-validation.js';
 
 /**
@@ -12,4 +12,13 @@ export class SendMessageDto {
   @IsString()
   @IsOptional()
   message?: string;
+
+  /**
+   * People @mentioned in the message, comma separated: "user:12,client:3".
+   * A plain string (not an array) so it works the same in JSON and in multipart form data.
+   */
+  @Matches(/^(user|client):\d+(,(user|client):\d+)*$/, { message: 'mentions must look like "user:12,client:3".' })
+  @MaxLength(500)
+  @IsOptional()
+  mentions?: string;
 }

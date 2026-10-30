@@ -226,6 +226,15 @@ export interface ChatMessageDto {
   createdAt: string;
 }
 
+/** Someone who can be @mentioned in a lead chat. Ids repeat across users and clients, so the key is type + id. */
+export interface MentionableDto {
+  type: UserType;
+  id: number;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+}
+
 export interface ChatAttachmentDto {
   name: string;
   /** image and video are shown inline, file is a download link */

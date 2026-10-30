@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module.js';
+import { NotificationsModule } from '../notifications/notifications.module.js';
 import { RolesGuard } from '../auth/roles.guard.js';
 import { FileStorageService } from './file-storage.service.js';
 import { LeadAccessService } from './lead-access.service.js';
@@ -11,7 +12,7 @@ import { LeadsController } from './leads.controller.js';
 import { LeadsService } from './leads.service.js';
 
 @Module({
-  imports: [AuthModule], // provides JwtAuthGuard + JwtService
+  imports: [AuthModule, NotificationsModule], // AuthModule provides JwtAuthGuard + JwtService
   controllers: [LeadsController, LeadChatController, LeadDocumentsController],
   providers: [LeadsService, LeadChatService, LeadDocumentsService, LeadAccessService, FileStorageService, RolesGuard],
 })

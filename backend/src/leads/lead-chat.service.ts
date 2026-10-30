@@ -1,11 +1,14 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { and, or } from '@prisma/orm-postgres/orm-client';
 import path from 'node:path';
-import { CLIENT_ROLE, type PublicUser } from '../auth/auth.types.js';
+import { CLIENT_ROLE, type PublicUser, type UserType } from '../auth/auth.types.js';
+import { NotificationsService, type MentionTarget } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { GLOBAL_ROLES } from '../users/users.types.js';
 import { CHAT_ALLOWED_EXTENSIONS, chatTypeFor } from './chat-attachments.js';
 import { cleanName, FileStorageService, type UploadedFileData } from './file-storage.service.js';
 import { LeadAccessService } from './lead-access.service.js';
-import { CHAT_SENDER_TYPE, iso, must, toUserRef, USER_REF_FIELDS, type ChatAttachmentDto, type ChatMessageDto, type UserRefDto } from './leads.types.js';
+import { CHAT_SENDER_TYPE, iso, must, toUserRef, USER_REF_FIELDS, type ChatAttachmentDto, type ChatMessageDto, type MentionableDto, type UserRefDto } from './leads.types.js';
 
 /** How many messages the first load returns; later polls only fetch messages after the last one seen */
 const PAGE_SIZE = 200;
@@ -21,6 +24,7 @@ export class LeadChatService {
     private readonly prisma: PrismaService,
     private readonly access: LeadAccessService,
     private readonly storage: FileStorageService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /** `afterId`: only messages newer than this one (used for polling) */
@@ -38,7 +42,13 @@ export class LeadChatService {
   }
 
   /** A message is text, a file, or both (the text is then the caption) */
-  async send(leadId: number, text: string, file: UploadedFileData | undefined, user: PublicUser): Promise<ChatMessageDto> {
+  async send(
+    leadId: number,
+    text: string,
+    file: UploadedFileData | undefined,
+    mentions: string | undefined,
+    user: PublicUser,
+  ): Promise<ChatMessageDto> {
     if (!text && !file) throw new BadRequestException('Write a message or attach a file.');
 
     const lead = await this.access.getViewable(leadId, user);
@@ -81,7 +91,71 @@ export class LeadChatService {
       .include('user', (u) => u.select(...USER_REF_FIELDS))
       .include('client', (c) => c.select(...CLIENT_SENDER_FIELDS))
       .first();
+    await this.notifyMentioned(lead, created.id, text, mentions, user);
     return toMessageDto(message!);
+  }
+
+  /** People the sender can @mention: everyone else who can read this chat */
+  async mentionable(leadId: number, user: PublicUser): Promise<MentionableDto[]> {
+    const lead = await this.access.getViewable(leadId, user);
+    const people = await this.participants(lead);
+    return people
+      .filter((p) => !isSelf(p, user))
+      .map((p) => ({ type: p.type, id: p.id, firstName: p.firstName, lastName: p.lastName, role: p.role }));
+  }
+
+  /**
+   * Notifies the people in `mentions` ("user:12,client:3") who can read this chat and whose
+   * "@First Last" is really in the text. Anything else in the list is ignored, so a crafted
+   * request cannot notify outsiders or the sender.
+   */
+  private async notifyMentioned(
+    lead: { id: number; clientId: number; createdById: number | null },
+    messageId: number,
+    text: string,
+    mentions: string | undefined,
+    user: PublicUser,
+  ): Promise<void> {
+    const keys = new Set(mentions?.split(',') ?? []);
+    if (keys.size === 0) return;
+
+    const lowerText = text.toLowerCase();
+    const targets = (await this.participants(lead)).filter(
+      (p) =>
+        keys.has(`${p.type}:${p.id}`) &&
+        !isSelf(p, user) &&
+        lowerText.includes(`@${p.firstName} ${p.lastName}`.toLowerCase()),
+    );
+    if (targets.length === 0) return;
+
+    const { projectName } = must(await this.prisma.orm.public.Lead.select('projectName').where({ id: lead.id }).first());
+    await this.notifications.notifyMentions({ lead: { id: lead.id, projectName }, messageId, actor: user, text, targets });
+  }
+
+  /**
+   * Everyone who can read the chat: admins and managers, the lead's creator, anyone ever assigned
+   * to it (active staff accounts only), and the lead's client. Same rules as LeadAccessService.
+   */
+  private async participants(lead: { id: number; clientId: number; createdById: number | null }): Promise<Participant[]> {
+    const assigned = await this.prisma.orm.public.LeadUser.select('userId').where({ leadId: lead.id }).all();
+    const involvedIds = [...new Set([lead.createdById, ...assigned.map((a) => a.userId)].filter((id) => id !== null))];
+
+    const [users, client] = await Promise.all([
+      this.prisma.orm.public.User.select('id', 'firstName', 'lastName', 'role', 'email')
+        .where((u) =>
+          and(
+            u.isActive.eq(true),
+            involvedIds.length > 0 ? or(u.role.in([...GLOBAL_ROLES]), u.id.in(involvedIds)) : u.role.in([...GLOBAL_ROLES]),
+          ),
+        )
+        .orderBy([(u) => u.firstName.asc(), (u) => u.lastName.asc()])
+        .all(),
+      this.prisma.orm.public.Client.select('id', 'firstName', 'lastName', 'email').where({ id: lead.clientId }).first(),
+    ]);
+
+    const people: Participant[] = users.map((u) => ({ type: 'user', ...u }));
+    if (client) people.push({ type: 'client', ...client, role: CLIENT_ROLE });
+    return people;
   }
 
   /** Anyone who can read the chat can open its files, even after the chat is closed */
@@ -122,6 +196,12 @@ export class LeadChatService {
 }
 
 const CLIENT_SENDER_FIELDS = ['id', 'firstName', 'lastName'] as const;
+
+type Participant = MentionTarget & { role: UserRefDto['role'] };
+
+function isSelf(p: { type: UserType; id: number }, user: PublicUser): boolean {
+  return p.type === user.userType && p.id === user.id;
+}
 
 /** userType decides whose details are the sender: the Client row (2) or the User row (1) */
 function toMessageDto(m: {

@@ -59,6 +59,10 @@ enum AssignmentRole {
 }
 
 /// Folder a lead document is stored in: each department uploads into its own folder
+enum NotificationType {
+  MENTION
+}
+
 enum Department {
   SALES
   CUTSHEET
@@ -90,6 +94,7 @@ model User {
   documents       Document[]
   messages        ChatMessage[]
   payments        Payment[]
+  notifications   Notification[]
 
   statusChanges     LeadStatusHistory[] @relation("HistoryChangedBy")
   historyAssignedBy LeadStatusHistory[] @relation("HistoryAssignedBy")
@@ -113,7 +118,8 @@ model Client {
   passwordHash        String?
 
   leads    Lead[]
-  messages ChatMessage[]
+  messages      ChatMessage[]
+  notifications Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -180,6 +186,7 @@ model Lead {
   messages      ChatMessage[]
   statusHistory LeadStatusHistory[]
   payments      Payment[]
+  notifications Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -338,6 +345,8 @@ model ChatMessage {
     references: [id]
   )
 
+
+  notifications Notification[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
@@ -373,4 +382,53 @@ model Payment {
 
   @@index([leadId])
   @@index([paidOn])
+}
+
+// Something a person should look at, e.g. they were @mentioned in a lead chat
+model Notification {
+  id Int @id @default(autoincrement())
+  // Exactly one recipient, like ChatMessage: 1 = staff user (userId is set), 2 = client (clientId is set)
+  recipientType Int
+  userId        Int?
+  clientId      Int?
+
+  type          NotificationType
+  leadId        Int
+  chatMessageId Int?
+  // Who caused it and a short excerpt, stored so the list needs no joins
+  actorName String
+  preview   String
+
+  readAt DateTime?
+
+  user User? @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  client Client? @relation(
+    fields: [clientId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  lead Lead @relation(
+    fields: [leadId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  chatMessage ChatMessage? @relation(
+    fields: [chatMessageId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@index([clientId, readAt])
+  @@index([leadId])
+  @@index([chatMessageId])
 }
