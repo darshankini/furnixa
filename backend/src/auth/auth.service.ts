@@ -86,7 +86,7 @@ export class AuthService {
       expiresIn: ttlMinutes * 60,
     });
 
-    const link = `${this.config.getOrThrow<string>('FRONTEND_URL')}/reset-password?token=${token}`;
+    const link = `${this.config.getOrThrow<string>('FRONTEND_URL').replace(/\/+$/, '')}/reset-password?token=${token}`;
 
     await this.mail.send(
       user.email,

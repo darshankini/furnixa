@@ -8,7 +8,8 @@ export async function createApp() {
 
   app.setGlobalPrefix('api');
   // Frontend and API live on different subdomains in production, so the browser needs CORS (with cookies)
-  app.enableCors({ origin: process.env.FRONTEND_URL, credentials: true });
+  // Origin must match exactly, so drop any trailing slash from FRONTEND_URL
+  app.enableCors({ origin: process.env.FRONTEND_URL?.replace(/\/+$/, ''), credentials: true });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
