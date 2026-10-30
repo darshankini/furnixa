@@ -20,18 +20,24 @@ export class LeadAccessService {
 
   /** The lead's basic fields, or an error if it does not exist or the user may not see it */
   async getViewable(leadId: number, user: PublicUser) {
-    const lead = await this.prisma.orm.public.Lead.select('id', 'status', 'clientId', 'createdById', 'chatClosed')
-      .where({ id: leadId })
-      .first();
+    // A client's id is a Client id, so it must never be compared with createdById or assignment user ids
+    const needsAssignment = user.userType !== 'client' && !hasRole(user, LEAD_VIEW_ALL_ROLES);
+
+    // Both lookups are independent, so they go to the database together (one round trip, not two)
+    const [lead, assignment] = await Promise.all([
+      this.prisma.orm.public.Lead.select('id', 'status', 'clientId', 'createdById', 'chatClosed').where({ id: leadId }).first(),
+      needsAssignment
+        ? this.prisma.orm.public.LeadUser.select('id').where({ leadId, userId: user.id }).first()
+        : Promise.resolve(null),
+    ]);
     if (!lead) throw new NotFoundException('Lead not found.');
 
-    // A client's id is a Client id, so it must never be compared with createdById or assignment user ids
     if (user.userType === 'client') {
       if (lead.clientId !== user.id) throw new ForbiddenException(NO_ACCESS);
       return lead;
     }
 
-    if (!hasRole(user, LEAD_VIEW_ALL_ROLES) && !(await this.isInvolved(lead, user.id))) {
+    if (needsAssignment && lead.createdById !== user.id && assignment === null) {
       throw new ForbiddenException(NO_ACCESS);
     }
     return lead;
@@ -42,13 +48,6 @@ export class LeadAccessService {
     const lead = await this.getViewable(leadId, user);
     if (user.userType === 'client' || !canManagePhase(user.role, lead.status)) throw new ForbiddenException('You do not have permission to do this.');
     return lead;
-  }
-
-  /** Created the lead, or has an assignment row (active or not) */
-  async isInvolved(lead: { id: number; createdById: number | null }, userId: number): Promise<boolean> {
-    if (lead.createdById === userId) return true;
-    const row = await this.prisma.orm.public.LeadUser.select('id').where({ leadId: lead.id, userId }).first();
-    return row !== null;
   }
 
   /** Currently assigned (not taken off the lead) */

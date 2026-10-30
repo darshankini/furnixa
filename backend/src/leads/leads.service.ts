@@ -79,31 +79,35 @@ export class LeadsService {
   }
 
   async findOne(id: number, user: PublicUser): Promise<LeadDetailDto> {
-    await this.access.getViewable(id, user);
+    // The access check and the three reads are independent, so they all run at once. Nothing is
+    // returned unless the access check passes (Promise.all rejects with its error).
+    const [, lead, assignments, history] = await Promise.all([
+      this.access.getViewable(id, user),
 
-    const lead = await this.withSummary()
-      .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('lastUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('chatClosedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('productionStageUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('payments', (p) => p.sum('amount'))
-      .where({ id })
-      .first();
+      this.withSummary()
+        .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('lastUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('chatClosedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('productionStageUpdatedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('payments', (p) => p.sum('amount'))
+        .where({ id })
+        .first(),
+
+      // Every assignment, current and previous, newest first
+      this.prisma.orm.public.LeadUser.where({ leadId: id })
+        .include('user', (u) => u.select(...USER_REF_FIELDS))
+        .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
+        .orderBy([(a) => a.assignedAt.desc(), (a) => a.id.desc()])
+        .all(),
+
+      this.prisma.orm.public.LeadStatusHistory.where({ leadId: id })
+        .include('changedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
+        .include('assignedTo', (u) => u.select(...USER_REF_FIELDS))
+        .orderBy([(h) => h.changedAt.desc(), (h) => h.id.desc()])
+        .all(),
+    ]);
     if (!lead) throw new NotFoundException('Lead not found.');
-
-    // Every assignment, current and previous, newest first
-    const assignments = await this.prisma.orm.public.LeadUser.where({ leadId: id })
-      .include('user', (u) => u.select(...USER_REF_FIELDS))
-      .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
-      .orderBy([(a) => a.assignedAt.desc(), (a) => a.id.desc()])
-      .all();
-
-    const history = await this.prisma.orm.public.LeadStatusHistory.where({ leadId: id })
-      .include('changedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('assignedBy', (u) => u.select(...USER_REF_FIELDS))
-      .include('assignedTo', (u) => u.select(...USER_REF_FIELDS))
-      .orderBy([(h) => h.changedAt.desc(), (h) => h.id.desc()])
-      .all();
 
     return {
       id: lead.id,

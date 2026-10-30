@@ -29,15 +29,17 @@ export class LeadChatService {
 
   /** `afterId`: only messages newer than this one (used for polling) */
   async list(leadId: number, user: PublicUser, afterId?: number): Promise<ChatMessageDto[]> {
-    await this.access.getViewable(leadId, user);
-
     let messages = this.prisma.orm.public.ChatMessage.where({ leadId })
       .include('user', (u) => u.select(...USER_REF_FIELDS))
       .include('client', (c) => c.select(...CLIENT_SENDER_FIELDS));
     if (afterId !== undefined) messages = messages.where((m) => m.id.gt(afterId));
 
+    // Access check and read run together; the rows are only returned if the check passes.
     // Newest PAGE_SIZE messages, returned oldest first
-    const rows = await messages.orderBy((m) => m.id.desc()).limit(PAGE_SIZE).all();
+    const [, rows] = await Promise.all([
+      this.access.getViewable(leadId, user),
+      messages.orderBy((m) => m.id.desc()).limit(PAGE_SIZE).all(),
+    ]);
     return rows.reverse().map(toMessageDto);
   }
 
@@ -97,8 +99,7 @@ export class LeadChatService {
 
   /** People the sender can @mention: everyone else who can read this chat */
   async mentionable(leadId: number, user: PublicUser): Promise<MentionableDto[]> {
-    const lead = await this.access.getViewable(leadId, user);
-    const people = await this.participants(lead);
+    const [, people] = await Promise.all([this.access.getViewable(leadId, user), this.participants(leadId)]);
     return people
       .filter((p) => !isSelf(p, user))
       .map((p) => ({ type: p.type, id: p.id, firstName: p.firstName, lastName: p.lastName, role: p.role }));
@@ -110,7 +111,7 @@ export class LeadChatService {
    * request cannot notify outsiders or the sender.
    */
   private async notifyMentioned(
-    lead: { id: number; clientId: number; createdById: number | null },
+    lead: { id: number },
     messageId: number,
     text: string,
     mentions: string | undefined,
@@ -120,7 +121,7 @@ export class LeadChatService {
     if (keys.size === 0) return;
 
     const lowerText = text.toLowerCase();
-    const targets = (await this.participants(lead)).filter(
+    const targets = (await this.participants(lead.id)).filter(
       (p) =>
         keys.has(`${p.type}:${p.id}`) &&
         !isSelf(p, user) &&
@@ -136,21 +137,25 @@ export class LeadChatService {
    * Everyone who can read the chat: admins and managers, the lead's creator, anyone ever assigned
    * to it (active staff accounts only), and the lead's client. Same rules as LeadAccessService.
    */
-  private async participants(lead: { id: number; clientId: number; createdById: number | null }): Promise<Participant[]> {
-    const assigned = await this.prisma.orm.public.LeadUser.select('userId').where({ leadId: lead.id }).all();
-    const involvedIds = [...new Set([lead.createdById, ...assigned.map((a) => a.userId)].filter((id) => id !== null))];
-
+  private async participants(leadId: number): Promise<Participant[]> {
+    // Two independent queries, sent together; relation filters avoid a separate lookup of the lead first
     const [users, client] = await Promise.all([
       this.prisma.orm.public.User.select('id', 'firstName', 'lastName', 'role', 'email')
         .where((u) =>
           and(
             u.isActive.eq(true),
-            involvedIds.length > 0 ? or(u.role.in([...GLOBAL_ROLES]), u.id.in(involvedIds)) : u.role.in([...GLOBAL_ROLES]),
+            or(
+              u.role.in([...GLOBAL_ROLES]),
+              u.createdLeads.some((l) => l.id.eq(leadId)),
+              u.assignments.some((a) => a.leadId.eq(leadId)),
+            ),
           ),
         )
         .orderBy([(u) => u.firstName.asc(), (u) => u.lastName.asc()])
         .all(),
-      this.prisma.orm.public.Client.select('id', 'firstName', 'lastName', 'email').where({ id: lead.clientId }).first(),
+      this.prisma.orm.public.Client.select('id', 'firstName', 'lastName', 'email')
+        .where((c) => c.leads.some((l) => l.id.eq(leadId)))
+        .first(),
     ]);
 
     const people: Participant[] = users.map((u) => ({ type: 'user', ...u }));
@@ -160,11 +165,10 @@ export class LeadChatService {
 
   /** Anyone who can read the chat can open its files, even after the chat is closed */
   async attachment(leadId: number, messageId: number, user: PublicUser) {
-    await this.access.getViewable(leadId, user);
-
-    const m = await this.prisma.orm.public.ChatMessage.select('attachmentName', 'attachmentPath')
-      .where({ id: messageId, leadId })
-      .first();
+    const [, m] = await Promise.all([
+      this.access.getViewable(leadId, user),
+      this.prisma.orm.public.ChatMessage.select('attachmentName', 'attachmentPath').where({ id: messageId, leadId }).first(),
+    ]);
     if (!m?.attachmentPath || !m.attachmentName) throw new NotFoundException('File not found.');
 
     const type = chatTypeFor(path.extname(m.attachmentPath).slice(1));

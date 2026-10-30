@@ -8,6 +8,7 @@ import { useAuth } from '../../context/auth-context'
 import { LEAD_DELETE_ROLES, PAYMENT_ROLES, canEditLead, isClient } from '../../data/roles'
 import { formatDateTime, formatMoney } from '../../utils/format'
 import { LeadAssignPanel } from './LeadAssignPanel'
+import { prefetchChat } from './chat-prefetch'
 import { LeadChat } from './LeadChat'
 import { LeadDocuments } from './LeadDocuments'
 import { LeadHistory, LeadTeam } from './LeadHistory'
@@ -52,6 +53,7 @@ function LeadDetailView({ id }: { id: number }) {
 
   useEffect(() => {
     if (!Number.isInteger(id) || id <= 0) return
+    prefetchChat(id) // the chat's requests run alongside the lead's instead of after it
     void load()
   }, [id, load])
 

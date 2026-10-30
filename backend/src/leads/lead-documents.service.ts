@@ -30,14 +30,16 @@ export class LeadDocumentsService {
   ) {}
 
   async list(leadId: number, user: PublicUser, department?: Department): Promise<LeadDocumentDto[]> {
-    await this.access.getViewable(leadId, user);
-
     let docs = this.prisma.orm.public.Document.where({ leadId }).include('uploadedBy', (u) =>
       u.select(...USER_REF_FIELDS),
     );
     if (department) docs = docs.where({ department });
 
-    const rows = await docs.orderBy([(d) => d.createdAt.desc(), (d) => d.id.desc()]).all();
+    // Access check and read run together; the rows are only returned if the check passes
+    const [, rows] = await Promise.all([
+      this.access.getViewable(leadId, user),
+      docs.orderBy([(d) => d.createdAt.desc(), (d) => d.id.desc()]).all(),
+    ]);
     return rows.map(toDocumentDto);
   }
 

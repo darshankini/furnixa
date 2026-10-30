@@ -7,6 +7,7 @@ import { useAuth } from '../../context/auth-context'
 import { useNotifications } from '../../context/notifications-context'
 import { LEAD_CHAT_CLOSE_ROLES, ROLE_BY_VALUE } from '../../data/roles'
 import { formatDateTime, formatSize, initialsOf } from '../../utils/format'
+import { takeChatPrefetch } from './chat-prefetch'
 
 /** How often to check for new messages while the tab is visible */
 const POLL_MS = 5000
@@ -48,7 +49,7 @@ interface Props {
  */
 export function LeadChat({ lead, onChatStatusChange }: Props) {
   const { user: me } = useAuth()
-  const { markLeadRead } = useNotifications()
+  const { notifications, markLeadRead } = useNotifications()
   const [searchParams] = useSearchParams()
   const [messages, setMessages] = useState<ChatMessage[] | null>(null)
   const [error, setError] = useState('')
@@ -105,28 +106,30 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
     })
   }, [])
 
-  // Opening the chat counts as seeing its mentions
+  // Started by the lead page in parallel with the lead itself (see chat-prefetch.ts)
+  const firstLoad = useMemo(() => takeChatPrefetch(lead.id), [lead.id])
+
+  // Opening the chat counts as seeing its mentions; only call the server when there are some
+  const hasUnreadHere = notifications.some((n) => !n.read && n.leadId === lead.id)
   useEffect(() => {
-    void markLeadRead(lead.id).catch(() => undefined)
-  }, [lead.id, markLeadRead])
+    if (hasUnreadHere) void markLeadRead(lead.id).catch(() => undefined)
+  }, [hasUnreadHere, lead.id, markLeadRead])
 
   // Who can be @mentioned; the chat still works if this fails
   useEffect(() => {
     let cancelled = false
-    leadsApi
-      .mentionable(lead.id)
+    firstLoad.mentionable
       .then((res) => !cancelled && setPeople(res.people))
       .catch(() => undefined)
     return () => {
       cancelled = true
     }
-  }, [lead.id])
+  }, [firstLoad])
 
   // First load, then poll for anything newer than the last message we have
   useEffect(() => {
     let cancelled = false
-    leadsApi
-      .messages(lead.id)
+    firstLoad.messages
       .then((res) => {
         if (cancelled) return
         setMessages([])
@@ -151,7 +154,7 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [lead.id, addMessages, mentionsMe, markLeadRead])
+  }, [lead.id, firstLoad, addMessages, mentionsMe, markLeadRead])
 
   // Keep the newest message in view
   useEffect(() => {
