@@ -45,25 +45,29 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
   }, [refresh])
 
+  // Stable across refreshes, so effects that depend on them don't re-run every time the list changes
+  const markRead = useCallback(
+    async (id: number) => {
+      await notificationsApi.markRead(id)
+      await refresh()
+    },
+    [refresh],
+  )
+  const markAllRead = useCallback(async () => {
+    await notificationsApi.markAllRead()
+    await refresh()
+  }, [refresh])
+  const markLeadRead = useCallback(
+    async (leadId: number) => {
+      await notificationsApi.markLeadRead(leadId)
+      await refresh()
+    },
+    [refresh],
+  )
+
   const value = useMemo<NotificationsContextValue>(
-    () => ({
-      notifications,
-      unreadCount,
-      refresh,
-      markRead: async (id) => {
-        await notificationsApi.markRead(id)
-        await refresh()
-      },
-      markAllRead: async () => {
-        await notificationsApi.markAllRead()
-        await refresh()
-      },
-      markLeadRead: async (leadId) => {
-        await notificationsApi.markLeadRead(leadId)
-        await refresh()
-      },
-    }),
-    [notifications, unreadCount, refresh],
+    () => ({ notifications, unreadCount, refresh, markRead, markAllRead, markLeadRead }),
+    [notifications, unreadCount, refresh, markRead, markAllRead, markLeadRead],
   )
 
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>

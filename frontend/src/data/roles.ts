@@ -14,7 +14,7 @@ export const ROLES: RoleOption[] = [
   { value: 'MANAGER', label: 'Manager', badgeBg: '#ffedd5', badgeText: '#9a3412' },
   { value: 'SALES', label: 'Sales', badgeBg: '#dbeafe', badgeText: '#1e40af' },
   { value: 'CUTSHEET', label: 'Cutsheet', badgeBg: '#ede9fe', badgeText: '#bed31d' },
-  { value: 'OPTIMISATION', label: 'Cutsheet', badgeBg: '#ede9fe', badgeText: '#de36b1' },
+  { value: 'OPTIMISATION', label: 'Optimisation', badgeBg: '#ede9fe', badgeText: '#de36b1' },
   { value: 'PURCHASE', label: 'Purchase', badgeBg: '#fef3c7', badgeText: '#92400e' },
   { value: 'PRODUCTION', label: 'Production', badgeBg: '#ccfbf1', badgeText: '#115e59' },
   { value: 'ACCOUNTS', label: 'Accounts', badgeBg: '#fce7f3', badgeText: '#9d174d' },

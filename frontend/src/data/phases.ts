@@ -35,15 +35,15 @@ export interface Phase {
 }
 
 export const PHASES: Phase[] = [
-  { status: 'ENQUIRY', label: 'Enquiry', slug: 'enquiry', icon: Inbox, chipBg: '#dbeafe', chipText: '#1e40af' },
-  { status: 'QUOTATION', label: 'Quotation', slug: 'quotation', icon: FileText, chipBg: '#ede9fe', chipText: '#5b21b6' },
-  { status: 'CUTSHEET', label: 'Cutsheet', slug: 'cutsheet', icon: FileText, chipBg: '#ede9fe', chipText: '#21ef8b' },
-  { status: 'OPTIMISATION', label: 'Optimisation', slug: 'optimisation', icon: SlidersHorizontal, chipBg: '#ccfbf1', chipText: '#115e59' },
-  { status: 'PURCHASE', label: 'Purchase', slug: 'purchase', icon: ShoppingCart, chipBg: '#ffedd5', chipText: '#9a3412' },
-  { status: 'PRODUCTION', label: 'Production', slug: 'production', icon: Factory, chipBg: '#fef3c7', chipText: '#92400e' },
-  { status: 'DISPATCH', label: 'Dispatch', slug: 'dispatch', icon: Truck, chipBg: '#dcfce7', chipText: '#166534' },
-  { status: 'ACCOUNTS', label: 'Accounts', slug: 'account', icon: Receipt, chipBg: '#fce7f3', chipText: '#9d174d' },
-  { status: 'COMPLETED', label: 'Completed', slug: 'completed', icon: BadgeCheck, chipBg: '#d1fae5', chipText: '#065f46' },
+  { status: 'ENQUIRY', label: 'Enquiry', slug: 'enquiry', icon: Inbox, chipBg: '#008000 ', chipText: '#ede9fe' },
+  { status: 'QUOTATION', label: 'Quotation', slug: 'quotation', icon: FileText, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'CUTSHEET', label: 'Cutsheet', slug: 'cutsheet', icon: FileText, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'OPTIMISATION', label: 'Optimisation', slug: 'optimisation', icon: SlidersHorizontal, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'PURCHASE', label: 'Purchase', slug: 'purchase', icon: ShoppingCart, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'PRODUCTION', label: 'Production', slug: 'production', icon: Factory, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'DISPATCH', label: 'Dispatch', slug: 'dispatch', icon: Truck, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'ACCOUNTS', label: 'Accounts', slug: 'account', icon: Receipt, chipBg: '#008000', chipText: '#ede9fe' },
+  { status: 'COMPLETED', label: 'Completed', slug: 'completed', icon: BadgeCheck, chipBg: '#008000', chipText: '#ede9fe' },
 ]
 
 /** true when `status` is the same phase as `phase` or a later one */

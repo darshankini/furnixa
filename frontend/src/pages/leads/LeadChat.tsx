@@ -132,7 +132,8 @@ export function LeadChat({ lead, onChatStatusChange }: Props) {
     firstLoad.messages
       .then((res) => {
         if (cancelled) return
-        setMessages([])
+        // Merge, never reset: if this effect re-runs, messages that arrived since the first load must stay
+        setMessages((prev) => prev ?? [])
         addMessages(res.messages)
       })
       .catch((err) => !cancelled && setError(err instanceof ApiError ? err.message : 'Unable to load the chat.'))

@@ -70,7 +70,7 @@ export function UsersListPage() {
               placeholder="Search by name, email or mobile"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              aria-label="Search users"
+              aria-label="Search user s"
             />
           </label>
           <select
