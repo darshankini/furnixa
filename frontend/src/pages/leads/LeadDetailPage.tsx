@@ -13,6 +13,7 @@ import { LeadChat } from './LeadChat'
 import { LeadDocuments } from './LeadDocuments'
 import { LeadHistory, LeadTeam } from './LeadHistory'
 import { LeadProduction } from './LeadProduction'
+import { LeadProjectDates } from './LeadProjectDates'
 import { LeadRequirement } from './LeadRequirement'
 import { PhaseBadge } from './PhaseBadge'
 
@@ -98,6 +99,7 @@ function LeadDetailView({ id }: { id: number }) {
                   {lead.createdBy && ` by ${lead.createdBy.firstName} ${lead.createdBy.lastName}`}
                 </span>
               </div>
+              <LeadProjectDates lead={lead} canChange={!!me && !client} onSaved={setLead} />
             </div>
             
             {(canManage || canDelete || canSeePayments) && (

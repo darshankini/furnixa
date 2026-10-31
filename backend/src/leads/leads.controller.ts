@@ -8,6 +8,7 @@ import { RolesGuard } from '../auth/roles.guard.js';
 import { AssignLeadDto } from './dto/assign-lead.dto.js';
 import { CreateLeadDto } from './dto/create-lead.dto.js';
 import { ListLeadsQueryDto } from './dto/list-leads-query.dto.js';
+import { SetCompletionDateDto } from './dto/set-completion-date.dto.js';
 import { SetProductionStageDto } from './dto/set-production-stage.dto.js';
 import { UpdateLeadDto } from './dto/update-lead.dto.js';
 import { LeadsService } from './leads.service.js';
@@ -68,6 +69,16 @@ export class LeadsController {
     @CurrentUser() user: PublicUser,
   ) {
     return { lead: await this.leads.setProductionStage(id, dto.stage, user) };
+  }
+
+  /** Anyone on staff who can see the lead (no @Roles), always with a reason; clients can't */
+  @Patch(':id/completion-date')
+  async setCompletionDate(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SetCompletionDateDto,
+    @CurrentUser() user: PublicUser,
+  ) {
+    return { lead: await this.leads.setCompletionDate(id, dto, user) };
   }
 
   @Delete(':id')

@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'785d1789a4b3343e0834e77c3ec2ebb1c5e3cff818aa68df2e5ee7575c6a064c'>;
+  StorageHashBase<'a39af14b1c4ffb468f1ca43a2cf9d98b513a461e2bbb2b14a1f645a9291461d4'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -329,6 +329,8 @@ export type FieldOutputTypes = {
         | null;
       readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+      readonly projectCompletionOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly projectConfirmedOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly projectName: CodecTypes['pg/text@1']['output'];
       readonly quotationAmount: Numeric<12, 2> | null;
       readonly requirement: CodecTypes['pg/text@1']['output'] | null;
@@ -512,6 +514,8 @@ export type FieldInputTypes = {
         | null;
       readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
+      readonly projectCompletionOn: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly projectConfirmedOn: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly projectName: CodecTypes['pg/text@1']['input'];
       readonly quotationAmount: CodecTypes['pg/numeric@1']['input'] | null;
       readonly requirement: CodecTypes['pg/text@1']['input'] | null;
@@ -695,6 +699,8 @@ export type StorageColumnTypes = {
         | null;
       readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+      readonly projectCompletionOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly projectConfirmedOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly projectName: CodecTypes['pg/text@1']['output'];
       readonly quotationAmount: Numeric<12, 2> | null;
       readonly requirement: CodecTypes['pg/text@1']['output'] | null;
@@ -878,6 +884,8 @@ export type StorageColumnInputTypes = {
         | null;
       readonly productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly productionStageUpdatedById: CodecTypes['pg/int4@1']['input'] | null;
+      readonly projectCompletionOn: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly projectConfirmedOn: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly projectName: CodecTypes['pg/text@1']['input'];
       readonly quotationAmount: CodecTypes['pg/numeric@1']['input'] | null;
       readonly requirement: CodecTypes['pg/text@1']['input'] | null;
@@ -1073,6 +1081,8 @@ export namespace Models {
       | null;
     productionStageUpdatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
     productionStageUpdatedById: CodecTypes['pg/int4@1']['output'] | null;
+    projectCompletionOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    projectConfirmedOn: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
     projectName: CodecTypes['pg/text@1']['output'];
     quotationAmount: Numeric<12, 2> | null;
     requirement: CodecTypes['pg/text@1']['output'] | null;
@@ -1682,6 +1692,16 @@ type ContractBase = Omit<
                 readonly productionStageUpdatedById: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly projectCompletionOn: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                };
+                readonly projectConfirmedOn: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: true;
                 };
                 readonly projectName: {
@@ -2905,6 +2925,20 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly projectCompletionOn: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly projectConfirmedOn: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
               readonly projectName: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -3076,6 +3110,8 @@ type ContractBase = Omit<
                 readonly productionStageUpdatedById: {
                   readonly column: 'productionStageUpdatedById';
                 };
+                readonly projectCompletionOn: { readonly column: 'projectCompletionOn' };
+                readonly projectConfirmedOn: { readonly column: 'projectConfirmedOn' };
                 readonly projectName: { readonly column: 'projectName' };
                 readonly quotationAmount: { readonly column: 'quotationAmount' };
                 readonly requirement: { readonly column: 'requirement' };

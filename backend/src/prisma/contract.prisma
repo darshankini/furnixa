@@ -137,6 +137,10 @@ model Lead {
   requirement String?
   // Entered when the lead moves into Quotation; payments are later tracked against it
   quotationAmount Numeric(12, 2)?
+  // Also set when the lead moves into Quotation (midnight UTC of the day, like Payment.paidOn).
+  // The completion date can be changed later with a reason, which goes into the lead history.
+  projectConfirmedOn  DateTime?
+  projectCompletionOn DateTime?
 
   client Client @relation(fields: [clientId], references: [id])
 

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "column.public.Lead.projectCompletionOn",
+    "label": "Add column \"projectCompletionOn\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "projectCompletionOn",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"projectCompletionOn\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "projectCompletionOn"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"projectCompletionOn\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"projectCompletionOn\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"projectCompletionOn\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "projectCompletionOn"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Lead.projectConfirmedOn",
+    "label": "Add column \"projectConfirmedOn\" to \"Lead\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "projectConfirmedOn",
+        "table": "Lead"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"projectConfirmedOn\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "projectConfirmedOn"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"projectConfirmedOn\"",
+        "sql": "ALTER TABLE \"public\".\"Lead\" ADD COLUMN \"projectConfirmedOn\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"projectConfirmedOn\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lead",
+          "projectConfirmedOn"
+        ]
+      }
+    ]
+  }
+]

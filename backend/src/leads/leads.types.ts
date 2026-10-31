@@ -148,6 +148,21 @@ export function iso(value: { toString(): string } | null): string | null {
   return value === null ? null : value.toString();
 }
 
+/** A calendar day (YYYY-MM-DD) is stored as midnight UTC of that day, like Payment.paidOn */
+export function toDayInstant(day: string): Temporal.Instant {
+  return Temporal.PlainDate.from(day).toZonedDateTime('UTC').toInstant();
+}
+
+/** The YYYY-MM-DD day back from a stored instant (or null) */
+export function dayOf(value: Temporal.Instant | null): string | null {
+  return value === null ? null : value.toZonedDateTimeISO('UTC').toPlainDate().toString();
+}
+
+/** "2026-11-07" → "07 Nov 2026", for history notes */
+export function formatDay(day: string): string {
+  return Temporal.PlainDate.from(day).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 export interface LeadClientDto {
   id: number;
   firstName: string;
@@ -198,6 +213,9 @@ export interface LeadDetailDto extends LeadSummaryDto {
   quotationAmount: string | null;
   /** Payments add up to the quotation amount, so admins and managers may complete the lead */
   isFullyPaid: boolean;
+  /** Days as YYYY-MM-DD, set when the lead moves into Quotation; null before that */
+  projectConfirmedOn: string | null;
+  projectCompletionOn: string | null;
   /** null until someone in Production picks a stage */
   productionStage: ProductionStage | null;
   productionStageUpdatedAt: string | null;

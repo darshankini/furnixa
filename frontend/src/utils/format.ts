@@ -11,6 +11,23 @@ export function formatDate(iso: string): string {
   return dateFormat.format(new Date(iso))
 }
 
+/** A calendar day from the API ("2026-11-07") → "07 Nov 2026", read as a local date so it never shifts a day */
+export function formatDay(day: string): string {
+  return dateFormat.format(new Date(`${day}T00:00:00`))
+}
+
+/** Today in the browser's time zone, as YYYY-MM-DD (the value a date input uses) */
+export function todayDay(): string {
+  return new Date().toLocaleDateString('en-CA')
+}
+
+/** "2026-10-31" + 7 → "2026-11-07" */
+export function addDays(day: string, days: number): string {
+  const d = new Date(`${day}T00:00:00`)
+  d.setDate(d.getDate() + days)
+  return d.toLocaleDateString('en-CA')
+}
+
 export function formatDateTime(iso: string): string {
   return dateTimeFormat.format(new Date(iso))
 }

@@ -60,6 +60,9 @@ export interface LeadDetail extends LeadSummary {
   quotationAmount: string | null
   /** Payments add up to the quotation amount, so admins and managers may complete the lead */
   isFullyPaid: boolean
+  /** Days as YYYY-MM-DD, set when the lead moves into Quotation; null before that */
+  projectConfirmedOn: string | null
+  projectCompletionOn: string | null
   /** Workshop stage inside the Production phase; null until someone picks one */
   productionStage: ProductionStage | null
   productionStageUpdatedAt: string | null
@@ -126,8 +129,10 @@ export interface AssignInput {
   /** Everyone who should work on the lead now; others are taken off it */
   userIds: number[]
   note?: string | null
-  /** Required when moving the lead into Quotation */
+  /** Required when moving the lead into Quotation, together with both project dates (YYYY-MM-DD) */
   quotationAmount?: number
+  projectConfirmedOn?: string
+  projectCompletionOn?: string
 }
 
 export const leadsApi = {
@@ -155,6 +160,10 @@ export const leadsApi = {
     apiRequest<{ lead: LeadDetail }>(`/leads/${id}/assign`, { method: 'POST', body: input }),
 
   /** Only while the lead is in Production */
+  /** Anyone on staff who can see the lead; the reason is kept in the lead history */
+  setCompletionDate: (id: number, projectCompletionOn: string, reason: string) =>
+    apiRequest<{ lead: LeadDetail }>(`/leads/${id}/completion-date`, { method: 'PATCH', body: { projectCompletionOn, reason } }),
+
   setProductionStage: (id: number, stage: ProductionStage) =>
     apiRequest<{ lead: LeadDetail }>(`/leads/${id}/production-stage`, { method: 'PATCH', body: { stage } }),
 
