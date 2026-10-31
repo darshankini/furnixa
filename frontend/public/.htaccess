@@ -1,0 +1,36 @@
+# Single-page app: React Router handles URLs like /leads/12 in the browser, so a page URL that
+# isn't a real file gets index.html (otherwise a refresh or a pasted link is the server's 404).
+# React then shows the right page, or its own "Page not found".
+
+# No folder listings (e.g. /assets/)
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Real files and folders are served as they are
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # A missing file (/assets/old-build.js, /logo.png) stays a real 404. Sending index.html instead
+  # would make the browser try to run HTML as JavaScript after a deploy.
+  RewriteRule ^assets/ - [R=404,L]
+  RewriteRule \.[a-z0-9]{1,5}$ - [NC,R=404,L]
+
+  # Everything else is an app page
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # index.html is always checked again, so a new deploy is picked up on the next load
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # Vite's built JS/CSS have a content hash in their name (index-D1u2qvd7.js), so they never
+  # change and can be cached for good
+  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
